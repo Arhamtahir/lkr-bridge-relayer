@@ -159,7 +159,7 @@ export class MigrationService {
       }
 
       await contract2.getPastEvents(
-        'TokenDeposited',
+        'Payback',
         {
           fromBlock: latestBlocks.bnbBlock,
           toBlock: 'latest',
@@ -232,7 +232,7 @@ export class MigrationService {
 
     if (latestBlocks != undefined) {
       await contract.getPastEvents(
-        'TokenWithdrawn',
+        'Withdraw',
         {
           fromBlock: latestBlocks.ethBlockClaim,
           toBlock: 'latest',
