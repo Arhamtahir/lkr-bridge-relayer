@@ -133,155 +133,149 @@ export class MigrationService {
     }
   }
 
-  // @Cron('*/15 * * * * *')
-  // async getBnbEventsCron() {
-  //   this.logger.debug('getBnbEventsCron Called every 15 second');
-  //   const web3 = new Web3(BSC_URL);
-  //   const contract2 = new web3.eth.Contract(
-  //     BEP_TO_ERC_ABI,
-  //     BNB_BRIDGE_CONTRACT_ADDRESS,
-  //   );
+  @Cron('*/15 * * * * *')
+  async getBnbEventsCron() {
+    this.logger.debug('getBnbEventsCron Called every 15 second');
+    const web3 = new Web3(BSC_URL);
+    const contract2 = new web3.eth.Contract(BEPtoERC_ABI, BSC_TO_ETH);
 
-  //   const latestBlocks = await this.blocksModel.findById(ETH_BNB_BLOCKS_DB_ID);
-  //   // console.log('getBnbEventsCron latest---------->', latestBlocks);
+    const latestBlocks = await this.blocksModel.findById(ETH_BNB_BLOCKS_DB_ID);
+    // console.log('getBnbEventsCron latest---------->', latestBlocks);
 
-  //   if (latestBlocks != undefined) {
-  //     //bnb block update
-  //     const blockNumber = await web3.eth.getBlockNumber();
-  //     console.log(blockNumber);
+    if (latestBlocks != undefined) {
+      //bnb block update
+      const blockNumber = await web3.eth.getBlockNumber();
+      console.log(blockNumber);
 
-  //     if (latestBlocks.bnbBlock < blockNumber) {
-  //       await this.blocksModel.updateOne(
-  //         { _id: ETH_BNB_BLOCKS_DB_ID },
-  //         {
-  //           $set: {
-  //             bnbBlock: blockNumber + 1,
-  //           },
-  //         },
-  //       );
-  //     }
+      if (latestBlocks.bnbBlock < blockNumber) {
+        await this.blocksModel.updateOne(
+          { _id: ETH_BNB_BLOCKS_DB_ID },
+          {
+            $set: {
+              bnbBlock: blockNumber + 1,
+            },
+          },
+        );
+      }
 
-  //     await contract2.getPastEvents(
-  //       'TokenDeposited',
-  //       {
-  //         fromBlock: latestBlocks.bnbBlock,
-  //         toBlock: 'latest',
-  //       },
-  //       async (err, events) => {
-  //         if (err) {
-  //           console.log('getBnbEventsCron error', err);
-  //         }
-  //         // console.log(events);
+      await contract2.getPastEvents(
+        'TokenDeposited',
+        {
+          fromBlock: latestBlocks.bnbBlock,
+          toBlock: 'latest',
+        },
+        async (err, events) => {
+          if (err) {
+            console.log('getBnbEventsCron error', err);
+          }
+          // console.log(events);
 
-  //         console.log('getBnbEvents events', events);
+          console.log('getBnbEvents events', events);
 
-  //         if (events != undefined && events.length != 0) {
-  //           //store events in DB
-  //           for (var i = 0; i < events.length; i++) {
-  //             let amount = events[i].returnValues.amount;
-  //             let account = events[i].returnValues.user;
-  //             let chainId = BSC_NETWORK;
-  //             let nonce = events[i].returnValues.nonce;
-  //             let isClaim = false;
-  //             const getVRS = this.getClaimVRS(
-  //               web3.utils.fromWei(amount.toString()),
-  //               account,
-  //               nonce,
-  //               ETH_BRIDGE_CONTRACT_ADDRESS,
-  //               chainId,
-  //             );
+          if (events != undefined && events.length != 0) {
+            //store events in DB
+            for (var i = 0; i < events.length; i++) {
+              let amount = events[i].returnValues.amount;
+              let account = events[i].returnValues.user;
+              let chainId = BSC_NETWORK;
+              let nonce = events[i].returnValues.nonce;
+              let isClaim = false;
+              const { v, r, s } = await this.getVRS(
+                web3.utils.fromWei(amount.toString()),
+                account,
+                nonce,
+                ETH_TO_BSC,
+                chainId,
+              );
 
-  //             console.log(getVRS, 'getVRS');
-  //             const res = await this.migrationModel.findOneAndUpdate(
-  //               { chainId: BSC_NETWORK, nonce: nonce, account: account },
-  //               {
-  //                 amount: web3.utils.fromWei(amount.toString()),
-  //                 account,
-  //                 chainId,
-  //                 v: parseInt(getVRS.v),
-  //                 r: getVRS.r,
-  //                 s: getVRS.s,
-  //                 nonce,
-  //                 isClaim,
-  //               },
-  //               { upsert: true, new: true, setDefaultsOnInsert: true },
-  //             );
-  //             console.log('res-------->', res);
+              console.log(v, r, s, 'getVRS');
+              const res = await this.migrationModel.findOneAndUpdate(
+                { chainId: BSC_NETWORK, nonce: nonce, account: account },
+                {
+                  amount: web3.utils.fromWei(amount.toString()),
+                  account,
+                  chainId,
+                  v: parseInt(v),
+                  r: r,
+                  s: s,
+                  nonce,
+                  isClaim,
+                },
+                { upsert: true, new: true, setDefaultsOnInsert: true },
+              );
+              console.log('res-------->', res);
 
-  //             // await this.migrationModel.create({
-  //             //   amount: web3.utils.fromWei(amount.toString()),
-  //             //   account,
-  //             //   chainId,
-  //             //   v: parseInt(getVRS.v),
-  //             //   r: getVRS.r,
-  //             //   s: getVRS.s,
-  //             //   nonce,
-  //             //   isClaim,
-  //             // });
-  //           }
-  //         }
-  //       },
-  //     );
-  //   }
-  // }
+              // await this.migrationModel.create({
+              //   amount: web3.utils.fromWei(amount.toString()),
+              //   account,
+              //   chainId,
+              //   v: parseInt(getVRS.v),
+              //   r: getVRS.r,
+              //   s: getVRS.s,
+              //   nonce,
+              //   isClaim,
+              // });
+            }
+          }
+        },
+      );
+    }
+  }
 
-  // @Cron('*/15 * * * * *')
-  // async checkEthTransactionCron() {
-  //   this.logger.debug('checkEthTransactionCron called every 15 second');
-  //   const web3 = new Web3(ETH_URL);
-  //   const contract = new web3.eth.Contract(
-  //     ERC_TO_BEP_ABI,
-  //     ETH_BRIDGE_CONTRACT_ADDRESS,
-  //   );
-  //   const latestBlocks = await this.blocksModel.findById(ETH_BNB_BLOCKS_DB_ID);
-  //   // console.log('ethBlock', latestBlocks.ethBlock);
+  @Cron('*/15 * * * * *')
+  async checkEthTransactionCron() {
+    this.logger.debug('checkEthTransactionCron called every 15 second');
+    const web3 = new Web3(ETH_URL);
+    const contract = new web3.eth.Contract(ERCtoBEP_ABI, ETH_TO_BSC);
+    const latestBlocks = await this.blocksModel.findById(ETH_BNB_BLOCKS_DB_ID);
+    // console.log('ethBlock', latestBlocks.ethBlock);
 
-  //   if (latestBlocks != undefined) {
-  //     await contract.getPastEvents(
-  //       'TokenWithdrawn',
-  //       {
-  //         fromBlock: latestBlocks.ethBlockClaim,
-  //         toBlock: 'latest',
-  //       },
-  //       async (err, events) => {
-  //         if (err) {
-  //           console.log('checkEthTransactionCron error', err);
-  //         }
-  //         console.log(events);
+    if (latestBlocks != undefined) {
+      await contract.getPastEvents(
+        'TokenWithdrawn',
+        {
+          fromBlock: latestBlocks.ethBlockClaim,
+          toBlock: 'latest',
+        },
+        async (err, events) => {
+          if (err) {
+            console.log('checkEthTransactionCron error', err);
+          }
+          console.log(events);
 
-  //         // console.log(events);
-  //         if (events != undefined && events.length != 0) {
-  //           //eth block update
-  //           await this.blocksModel.updateOne(
-  //             { _id: ETH_BNB_BLOCKS_DB_ID },
-  //             {
-  //               $set: {
-  //                 ethBlockClaim: parseInt(events[0].blockNumber) + 1,
-  //               },
-  //             },
-  //           );
+          // console.log(events);
+          if (events != undefined && events.length != 0) {
+            //eth block update
+            await this.blocksModel.updateOne(
+              { _id: ETH_BNB_BLOCKS_DB_ID },
+              {
+                $set: {
+                  ethBlockClaim: parseInt(events[0].blockNumber) + 1,
+                },
+              },
+            );
 
-  //           for (var i = 0; i < events.length; i++) {
-  //             // console.log('blockHash', events[i].blockHash);
+            for (var i = 0; i < events.length; i++) {
+              // console.log('blockHash', events[i].blockHash);
 
-  //             await this.migrationModel.updateOne(
-  //               {
-  //                 account: events[i].returnValues.user,
-  //                 nonce: parseInt(events[i].returnValues.nonce),
-  //                 chainId: BSC_NETWORK,
-  //               },
-  //               {
-  //                 $set: {
-  //                   isClaim: true,
-  //                 },
-  //               },
-  //             );
-  //           }
-  //         }
-  //       },
-  //     );
-  //   }
-  // }
+              await this.migrationModel.updateOne(
+                {
+                  account: events[i].returnValues.user,
+                  nonce: parseInt(events[i].returnValues.nonce),
+                  chainId: BSC_NETWORK,
+                },
+                {
+                  $set: {
+                    isClaim: true,
+                  },
+                },
+              );
+            }
+          }
+        },
+      );
+    }
+  }
 
   @Cron('*/15 * * * * *')
   async checkBnbTransactionCron() {
