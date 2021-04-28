@@ -83,7 +83,7 @@ export class MigrationService {
                   [events[i].blockNumber, events[i].transactionIndex],
                 ),
               );
-              let chainId = ETH_NETWORK;
+              let chainId = BSC_NETWORK;
               let isClaim = false;
               console.log(
                 'new amount ==>>',
@@ -158,6 +158,7 @@ export class MigrationService {
         );
       }
 
+      // console.log('contract2 ==>>', contract2);
       await contract2.getPastEvents(
         'Payback',
         {
@@ -176,21 +177,36 @@ export class MigrationService {
             //store events in DB
             for (var i = 0; i < events.length; i++) {
               let amount = events[i].returnValues.amount;
-              let account = events[i].returnValues.user;
-              let chainId = BSC_NETWORK;
-              let nonce = events[i].returnValues.nonce;
-              let isClaim = false;
-              const { v, r, s } = await this.getVRS(
-                web3.utils.fromWei(amount.toString()),
-                account,
-                nonce,
-                ETH_TO_BSC,
-                chainId,
+              let account = events[i].returnValues.from;
+              let token = POLKALOKR_ETH;
+              let Id = keccak256(
+                defaultAbiCoder.encode(
+                  ['uint256', 'uint256'],
+                  [events[i].blockNumber, events[i].transactionIndex],
+                ),
               );
+              let chainId = ETH_NETWORK;
+              let isClaim = false;
 
+              console.log(
+                'get vrs params ==>>',
+                Id,
+                token,
+                ETH_TO_BSC,
+                Number(Web3.utils.fromWei(amount.toString())),
+                account,
+              );
+              const { v, r, s } = await this.getVRS(
+                Id,
+                token,
+                ETH_TO_BSC,
+                Number(Web3.utils.fromWei(amount.toString())),
+                account,
+              );
               console.log(v, r, s, 'getVRS');
+
               const res = await this.migrationModel.findOneAndUpdate(
-                { chainId: BSC_NETWORK, nonce: nonce, account: account },
+                { chainId: ETH_NETWORK, txn: Id },
                 {
                   amount: web3.utils.fromWei(amount.toString()),
                   account,
@@ -198,12 +214,11 @@ export class MigrationService {
                   v: parseInt(v),
                   r: r,
                   s: s,
-                  nonce,
+                  txn: Id,
                   isClaim,
                 },
                 { upsert: true, new: true, setDefaultsOnInsert: true },
               );
-              console.log('res-------->', res);
 
               // await this.migrationModel.create({
               //   amount: web3.utils.fromWei(amount.toString()),
@@ -260,9 +275,7 @@ export class MigrationService {
 
               await this.migrationModel.updateOne(
                 {
-                  account: events[i].returnValues.user,
-                  nonce: parseInt(events[i].returnValues.nonce),
-                  chainId: BSC_NETWORK,
+                  txn: events[i].returnValues.paybackId,
                 },
                 {
                   $set: {
