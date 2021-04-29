@@ -10,5 +10,5 @@ then
     echo "screen started..."
     screen -ls
 else
-    screen -S server -d -m node main.js
+    screen -S server -d -m node main.js && screen -ls
 fi

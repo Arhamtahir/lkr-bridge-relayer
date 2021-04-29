@@ -14,12 +14,12 @@ hooks:
   ApplicationStop:
     - location: scripts/terminate.sh
       timeout: 300
-      runas: root
+      runas: ubuntu
   ApplicationStart:
     - location: scripts/reload-pm2.sh
       timeout: 300
-      runas: root
+      runas: ubuntu
   ValidateService:
     - location: scripts/validate.sh
       timeout: 300
-      runas: root
+      runas: ubuntu
