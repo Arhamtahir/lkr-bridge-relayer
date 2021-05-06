@@ -19,235 +19,19 @@ export const BSC_URL = 'https://data-seed-prebsc-1-s1.binance.org:8545/'; //Test
 
 // export const POLKALOKR_ETH =
 //   '0x38A2fDc11f526Ddd5a607C1F251C065f40fBF2f7'; //main
-export const POLKALOKR_ETH = '0x8148d15C32A6D29E07a1537878362D50E3Ea0127'; //Test
+export const POLKALOKR_ETH = '0x87DA04c73109bCa7c7F6E095dDa3A4f6Ec898011'; //Test
 
 // export const POLKALOKR_BSC =
 //   '0x7e2c683EEc39813C191f6a40d259984dd5880c0A'; //main
-export const POLKALOKR_BSC = '0x079d904253D3E17EE08F22E72D8C8B05f4EdEE75'; //Test
+export const POLKALOKR_BSC = '0xFE153aDb3351b0899253CfF80c291Df4d0894d87'; //Test
 
 // export const ETH_TO_BSC =
 //   '0x3ab1ce328f9a2ca611c3e497d5d15bac9a5f0f12'; //main
-export const ETH_TO_BSC = '0x73A44Ae952b2CaE4C5caBFD48f84fCED9B2Fd4EC'; //Test
+export const ETH_TO_BSC = '0xc00E388a36474B73F70df3dF080Ebe3a54776481'; //Test
 
 // export const BSC_TO_ETH =
 //   '0x3ab1ce328f9a2ca611c3e497d5d15bac9a5f0f12'; //main
-export const BSC_TO_ETH = '0x1Bb4DaAa866dd31dF76beB26F52FDD74CAA8A343'; //Test
-
-export const BEPtoERC_ABI = [
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '_signer',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'nonpayable',
-    type: 'constructor',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'handler',
-        type: 'address',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'amount',
-        type: 'uint256',
-      },
-    ],
-    name: 'CollectFee',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'from',
-        type: 'address',
-      },
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'token',
-        type: 'address',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'amount',
-        type: 'uint256',
-      },
-    ],
-    name: 'Payback',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: 'bytes32',
-        name: 'transitId',
-        type: 'bytes32',
-      },
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'to',
-        type: 'address',
-      },
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'token',
-        type: 'address',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'amount',
-        type: 'uint256',
-      },
-    ],
-    name: 'Withdraw',
-    type: 'event',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '_wallet',
-        type: 'address',
-      },
-    ],
-    name: 'changeSigner',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'bytes32',
-        name: '',
-        type: 'bytes32',
-      },
-    ],
-    name: 'executedMap',
-    outputs: [
-      {
-        internalType: 'bool',
-        name: '',
-        type: 'bool',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'getDomainSeparator',
-    outputs: [
-      {
-        internalType: 'bytes32',
-        name: '',
-        type: 'bytes32',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'owner',
-    outputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '_token',
-        type: 'address',
-      },
-      {
-        internalType: 'uint256',
-        name: '_amount',
-        type: 'uint256',
-      },
-    ],
-    name: 'paybackTransit',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'signWallet',
-    outputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint8',
-        name: 'v',
-        type: 'uint8',
-      },
-      {
-        internalType: 'bytes32',
-        name: 'r',
-        type: 'bytes32',
-      },
-      {
-        internalType: 'bytes32',
-        name: 's',
-        type: 'bytes32',
-      },
-      {
-        internalType: 'bytes32',
-        name: '_transitId',
-        type: 'bytes32',
-      },
-      {
-        internalType: 'address',
-        name: '_token',
-        type: 'address',
-      },
-      {
-        internalType: 'uint256',
-        name: '_amount',
-        type: 'uint256',
-      },
-    ],
-    name: 'withdrawTransitToken',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-];
+export const BSC_TO_ETH = '0x8040f67BDCaC363C74F5ff5d34ab613197eF4c1E'; //Test
 
 export const ERCtoBEP_ABI = [
   {
@@ -267,17 +51,36 @@ export const ERCtoBEP_ABI = [
       {
         indexed: true,
         internalType: 'address',
-        name: 'handler',
+        name: 'oldOwner',
         type: 'address',
       },
       {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'amount',
-        type: 'uint256',
+        indexed: true,
+        internalType: 'address',
+        name: 'newOwner',
+        type: 'address',
       },
     ],
-    name: 'CollectFee',
+    name: 'OwnerChanged',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'oldSigner',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'newSigner',
+        type: 'address',
+      },
+    ],
+    name: 'SignerChanged',
     type: 'event',
   },
   {
@@ -332,9 +135,41 @@ export const ERCtoBEP_ABI = [
         name: 'amount',
         type: 'uint256',
       },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'fee',
+        type: 'uint256',
+      },
     ],
     name: 'Withdraw',
     type: 'event',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address[]',
+        name: '_addresses',
+        type: 'address[]',
+      },
+    ],
+    name: 'blackListAddress',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_newowner',
+        type: 'address',
+      },
+    ],
+    name: 'changeOwner',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [
@@ -347,19 +182,6 @@ export const ERCtoBEP_ABI = [
     name: 'changeSigner',
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'developFee',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
     type: 'function',
   },
   {
@@ -382,13 +204,19 @@ export const ERCtoBEP_ABI = [
     type: 'function',
   },
   {
-    inputs: [],
-    name: 'getDomainSeparator',
+    inputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    name: 'isWhiteList',
     outputs: [
       {
-        internalType: 'bytes32',
+        internalType: 'bool',
         name: '',
-        type: 'bytes32',
+        type: 'bool',
       },
     ],
     stateMutability: 'view',
@@ -422,15 +250,9 @@ export const ERCtoBEP_ABI = [
   },
   {
     inputs: [],
-    name: 'totalFee',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
+    name: 'toggleWhiteListOnly',
+    outputs: [],
+    stateMutability: 'nonpayable',
     type: 'function',
   },
   {
@@ -449,6 +271,32 @@ export const ERCtoBEP_ABI = [
     name: 'transitForBSC',
     outputs: [],
     stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address[]',
+        name: '_addresses',
+        type: 'address[]',
+      },
+    ],
+    name: 'whiteListAddress',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'whiteListOn',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'view',
     type: 'function',
   },
   {
@@ -479,14 +327,386 @@ export const ERCtoBEP_ABI = [
         type: 'address',
       },
       {
+        internalType: 'address',
+        name: 'beneficiary',
+        type: 'address',
+      },
+      {
         internalType: 'uint256',
         name: '_amount',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: '_fee',
         type: 'uint256',
       },
     ],
     name: 'withdrawFromBSC',
     outputs: [],
-    stateMutability: 'payable',
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_token',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: '_to',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: '_amount',
+        type: 'uint256',
+      },
+    ],
+    name: 'withdrawTokens',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+];
+
+export const BEPtoERC_ABI = [
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_signer',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'nonpayable',
+    type: 'constructor',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'oldOwner',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'newOwner',
+        type: 'address',
+      },
+    ],
+    name: 'OwnerChanged',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'from',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'token',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
+    ],
+    name: 'Payback',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'oldSigner',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'newSigner',
+        type: 'address',
+      },
+    ],
+    name: 'SignerChanged',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'bytes32',
+        name: 'transitId',
+        type: 'bytes32',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'to',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'token',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'fee',
+        type: 'uint256',
+      },
+    ],
+    name: 'Withdraw',
+    type: 'event',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address[]',
+        name: '_addresses',
+        type: 'address[]',
+      },
+    ],
+    name: 'blackListAddress',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_newowner',
+        type: 'address',
+      },
+    ],
+    name: 'changeOwner',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_wallet',
+        type: 'address',
+      },
+    ],
+    name: 'changeSigner',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'bytes32',
+        name: '',
+        type: 'bytes32',
+      },
+    ],
+    name: 'executedMap',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    name: 'isWhiteList',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'owner',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_token',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: '_amount',
+        type: 'uint256',
+      },
+    ],
+    name: 'paybackTransit',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'signWallet',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'toggleWhiteListOnly',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address[]',
+        name: '_addresses',
+        type: 'address[]',
+      },
+    ],
+    name: 'whiteListAddress',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'whiteListOn',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_token',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: '_to',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: '_amount',
+        type: 'uint256',
+      },
+    ],
+    name: 'withdrawTokens',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint8',
+        name: 'v',
+        type: 'uint8',
+      },
+      {
+        internalType: 'bytes32',
+        name: 'r',
+        type: 'bytes32',
+      },
+      {
+        internalType: 'bytes32',
+        name: 's',
+        type: 'bytes32',
+      },
+      {
+        internalType: 'bytes32',
+        name: '_transitId',
+        type: 'bytes32',
+      },
+      {
+        internalType: 'address',
+        name: '_token',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: 'beneficiary',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: '_amount',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: '_fee',
+        type: 'uint256',
+      },
+    ],
+    name: 'withdrawTransitToken',
+    outputs: [],
+    stateMutability: 'nonpayable',
     type: 'function',
   },
 ];

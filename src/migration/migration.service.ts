@@ -18,6 +18,9 @@ import {
 } from 'src/blockchain/constant';
 import { Blocks } from 'src/blocks/blocks.model';
 
+import axios from 'axios';
+import { async } from 'rxjs';
+
 const {
   defaultAbiCoder,
   hexlify,
@@ -100,7 +103,7 @@ export class MigrationService {
               console.log(v, r, s, 'getVRS');
 
               const res = await this.migrationModel.findOneAndUpdate(
-                { chainId: ETH_NETWORK, txn: Id },
+                { chainId: BSC_NETWORK, txn: Id },
                 {
                   amount: web3.utils.fromWei(amount.toString()),
                   account,
@@ -115,17 +118,6 @@ export class MigrationService {
               );
 
               console.log('res----------->', res);
-
-              // await this.migrationModel.create({
-              //   amount: web3.utils.fromWei(amount.toString()),
-              //   account,
-              //   chainId,
-              //   v: parseInt(getVRS.v),
-              //   r: getVRS.r,
-              //   s: getVRS.s,
-              //   nonce,
-              //   isClaim,
-              // });
             }
           }
         },
@@ -219,17 +211,6 @@ export class MigrationService {
                 },
                 { upsert: true, new: true, setDefaultsOnInsert: true },
               );
-
-              // await this.migrationModel.create({
-              //   amount: web3.utils.fromWei(amount.toString()),
-              //   account,
-              //   chainId,
-              //   v: parseInt(getVRS.v),
-              //   r: getVRS.r,
-              //   s: getVRS.s,
-              //   nonce,
-              //   isClaim,
-              // });
             }
           }
         },
@@ -238,110 +219,67 @@ export class MigrationService {
   }
 
   @Cron('*/15 * * * * *')
-  async checkEthTransactionCron() {
-    this.logger.debug('checkEthTransactionCron called every 15 second');
-    const web3 = new Web3(ETH_URL);
+  async claimAtBSC() {
+    const from = '0xd6B6A95819F8152a302530AA7cAF52B5B9833bE4';
+
+    const web3 = new Web3('https://data-seed-prebsc-1-s1.binance.org:8545/');
+    const contract = new web3.eth.Contract(BEPtoERC_ABI, BSC_TO_ETH);
+
+    const res = await this.migrationModel.find({
+      isClaim: false,
+      chainId: BSC_NETWORK,
+    });
+
+    let fees = await this.transferFees(BSC_NETWORK);
+
+    for (var i = 0; i < res.length; i++) {
+      this.ClaimBSC(
+        web3,
+        from,
+        contract,
+        res[i].v,
+        res[i].r,
+        res[i].s,
+        res[i].txn,
+        POLKALOKR_BSC,
+        res[i].account,
+        web3.utils.toWei(res[i].amount.toString()),
+        web3.utils.toWei(fees.toString()),
+        res[i].chainId,
+      );
+    }
+  }
+
+  @Cron('*/15 * * * * *')
+  async claimAtERC() {
+    const from = '0xd6B6A95819F8152a302530AA7cAF52B5B9833bE4';
+
+    const web3 = new Web3(
+      'https://rinkeby.infura.io/v3/637a6ab08bce4397a29cbc97b4c83abf',
+    );
     const contract = new web3.eth.Contract(ERCtoBEP_ABI, ETH_TO_BSC);
-    const latestBlocks = await this.blocksModel.findById(ETH_BNB_BLOCKS_DB_ID);
-    // console.log('ethBlock', latestBlocks.ethBlock);
 
-    if (latestBlocks != undefined) {
-      await contract.getPastEvents(
-        'Withdraw',
-        {
-          fromBlock: latestBlocks.ethBlockClaim,
-          toBlock: 'latest',
-        },
-        async (err, events) => {
-          if (err) {
-            console.log('checkEthTransactionCron error', err);
-          }
-          console.log(events);
+    const res = await this.migrationModel.find({
+      isClaim: false,
+      chainId: ETH_NETWORK,
+    });
 
-          // console.log(events);
-          if (events != undefined && events.length != 0) {
-            //eth block update
-            await this.blocksModel.updateOne(
-              { _id: ETH_BNB_BLOCKS_DB_ID },
-              {
-                $set: {
-                  ethBlockClaim: parseInt(events[0].blockNumber) + 1,
-                },
-              },
-            );
+    let fees = await this.transferFees(ETH_NETWORK);
 
-            for (var i = 0; i < events.length; i++) {
-              // console.log('blockHash', events[i].blockHash);
-
-              await this.migrationModel.updateOne(
-                {
-                  txn: events[i].returnValues.paybackId,
-                },
-                {
-                  $set: {
-                    isClaim: true,
-                  },
-                },
-              );
-            }
-          }
-        },
-      );
-    }
-  }
-
-  @Cron('*/15 * * * * *')
-  async checkBnbTransactionCron() {
-    this.logger.debug('checkBnbTransactionCron called every 10 second');
-    const web3 = new Web3(BSC_URL);
-    const contract2 = new web3.eth.Contract(BEPtoERC_ABI, BSC_TO_ETH);
-
-    const latestBlocks = await this.blocksModel.findById(ETH_BNB_BLOCKS_DB_ID);
-    console.log('checkBnbTransactionCron------------>', latestBlocks.bnbBlock);
-
-    if (latestBlocks != undefined) {
-      // console.log("contract2 latestBlock",latestBlocks)
-      //bnb block update
-      const blockNumber = await web3.eth.getBlockNumber();
-      console.log('checkBnbTransactionCron blockNumber update', blockNumber);
-      if (latestBlocks.bnbBlockClaim < blockNumber) {
-        await this.blocksModel.updateOne(
-          { _id: ETH_BNB_BLOCKS_DB_ID },
-          {
-            $set: {
-              bnbBlockClaim: blockNumber + 1,
-            },
-          },
-        );
-      }
-
-      await contract2.getPastEvents(
-        'Withdraw',
-        {
-          fromBlock: latestBlocks.bnbBlockClaim,
-          toBlock: 'latest',
-        },
-        async (err, events) => {
-          if (err) {
-            console.log('checkBnbTransactionCron', err);
-          }
-          console.log('checkBnbTransactionCron', events);
-
-          if (events != undefined && events.length != 0) {
-            for (var i = 0; i < events.length; i++) {
-              await this.migrationModel.updateOne(
-                {
-                  txn: events[i].returnValues.transitId,
-                },
-                {
-                  $set: {
-                    isClaim: true,
-                  },
-                },
-              );
-            }
-          }
-        },
+    for (var i = 0; i < res.length; i++) {
+      this.ClaimERC(
+        web3,
+        from,
+        contract,
+        res[i].v,
+        res[i].r,
+        res[i].s,
+        res[i].txn,
+        POLKALOKR_ETH,
+        res[i].account,
+        web3.utils.toWei(res[i].amount.toString()),
+        web3.utils.toWei(fees.toString()),
+        res[i].chainId,
       );
     }
   }
@@ -390,4 +328,209 @@ export class MigrationService {
     );
     return { v: v, r: '0x' + r.toString('hex'), s: '0x' + s.toString('hex') };
   }
+
+  transferFees = async (chainId) => {
+    // const web3 = new Web3(provider);
+    // const contract = new web3.eth.Contract(BEPtoERC_ABI, BSC_TO_ETH);
+
+    let finalTransactionFees = 0;
+
+    if (chainId == BSC_NETWORK) {
+      let txFees = (
+        ((5 * Math.pow(10, 9)) / Math.pow(10, 18)) *
+        120000
+      ).toString();
+
+      let txFeesInUsd = await this.BNBtoUSD(txFees);
+      let txFeesInLKR = await this.USDtoLKR(txFeesInUsd);
+      finalTransactionFees = txFeesInLKR;
+    }
+
+    if (chainId == ETH_NETWORK) {
+      let gasPrice = await this.getCurrentGasPrices();
+
+      let txFees = (
+        ((gasPrice.high * Math.pow(10, 9)) / Math.pow(10, 18)) *
+        120000
+      ).toString();
+
+      let txFeesInUsd = await this.ETHtoUSD(txFees);
+      let txFeesInLKR = await this.USDtoLKR(txFeesInUsd);
+      finalTransactionFees = txFeesInLKR;
+    }
+
+    return finalTransactionFees;
+  };
+
+  BNBtoUSD = async (amount) => {
+    let response = await axios.get(
+      'https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd',
+    );
+
+    console.log('bnb to usd ==>>', response.data);
+
+    let Token = response.data.binancecoin.usd;
+    console.log(Token, 'token');
+    return amount * Token;
+  };
+
+  ETHtoUSD = async (amount) => {
+    let response = await axios.get(
+      'https://api.coingecko.com/api/v3/simple/token_price/ethereum?contract_addresses=0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2&vs_currencies=USD',
+    );
+
+    let Token = response.data['0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'].usd;
+    console.log(Token, 'token');
+    return amount * Token;
+  };
+
+  USDtoLKR = async (amount) => {
+    let response = await axios.get(
+      'https://api.coingecko.com/api/v3/simple/token_price/ethereum?contract_addresses=0x80ce3027a70e0a928d9268994e9b85d03bd4cdcf&vs_currencies=USD',
+    );
+
+    let Token = response.data['0x80ce3027a70e0a928d9268994e9b85d03bd4cdcf'].usd;
+    console.log(Token, 'token');
+    return amount / Token;
+  };
+
+  getCurrentGasPrices = async () => {
+    try {
+      let response = await axios.get(
+        'https://ethgasstation.info/json/ethgasAPI.json',
+      );
+      let prices = {
+        low: response.data.safeLow / 10,
+        medium: response.data.average / 10,
+        high: response.data.fast / 10,
+      };
+      return prices;
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  ClaimBSC = async (
+    web3,
+    from,
+    contract,
+    v,
+    r,
+    s,
+    _transitId,
+    _token,
+    beneficiary,
+    _amount,
+    _fee,
+    chainId,
+  ) => {
+    try {
+      let count = await web3.eth.getTransactionCount(from, 'pending');
+      let gasPrices = await this.getCurrentGasPrices();
+      let rawTransaction = {
+        from: from,
+        to: BSC_TO_ETH,
+        data: contract.methods
+          .withdrawTransitToken(
+            v,
+            r,
+            s,
+            _transitId,
+            _token,
+            beneficiary,
+            _amount,
+            _fee,
+          )
+          .encodeABI(),
+        gasPrice: await web3.utils.toHex(10 * 1000000000),
+        nonce: count,
+        gasLimit: web3.utils.toHex(8000000),
+        chainId: chainId,
+      };
+      let pr_key = `${process.env.private_key}`.toString();
+      console.log(pr_key);
+      let signed = await web3.eth.accounts.signTransaction(
+        rawTransaction,
+        pr_key,
+      );
+      await web3.eth
+        .sendSignedTransaction(signed.rawTransaction)
+        .on('confirmation', async (confirmationNumber, receipt) => {
+          await this.migrationModel.findOneAndUpdate(
+            { txn: _transitId },
+            { isClaim: true },
+          );
+        })
+        .on('error', (error) => {
+          console.log(error);
+        })
+        .on('transactionHash', async (hash) => {
+          console.log(hash);
+        });
+    } catch (Err) {
+      console.log(Err);
+    }
+  };
+
+  ClaimERC = async (
+    web3,
+    from,
+    contract,
+    v,
+    r,
+    s,
+    _transitId,
+    _token,
+    beneficiary,
+    _amount,
+    _fee,
+    chainId,
+  ) => {
+    try {
+      let count = await web3.eth.getTransactionCount(from, 'pending');
+      let gasPrices = await this.getCurrentGasPrices();
+      let rawTransaction = {
+        from: from,
+        to: ETH_TO_BSC,
+        data: contract.methods
+          .withdrawFromBSC(
+            v,
+            r,
+            s,
+            _transitId,
+            _token,
+            beneficiary,
+            _amount,
+            _fee,
+          )
+          .encodeABI(),
+        gasPrice: await web3.utils.toHex(gasPrices.high * 1000000000),
+        nonce: count,
+        gasLimit: web3.utils.toHex(8000000),
+        chainId: chainId,
+      };
+      let pr_key = `${process.env.private_key}`.toString();
+      console.log(pr_key);
+      let signed = await web3.eth.accounts.signTransaction(
+        rawTransaction,
+        pr_key,
+      );
+      await web3.eth
+        .sendSignedTransaction(signed.rawTransaction)
+        .on('confirmation', async (confirmationNumber, receipt) => {
+          await this.migrationModel.findOneAndUpdate(
+            { txn: _transitId },
+            { isClaim: true },
+          );
+        })
+        .on('error', (error) => {
+          console.log(error);
+        })
+        .on('transactionHash', async (hash) => {
+          console.log(hash);
+        });
+    } catch (Err) {
+      console.log(Err);
+    }
+  };
 }
