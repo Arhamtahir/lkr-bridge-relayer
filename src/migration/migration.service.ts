@@ -447,7 +447,7 @@ export class MigrationService {
         gasLimit: web3.utils.toHex(8000000),
         chainId: chainId,
       };
-      let pr_key = `${process.env.private_key}`.toString();
+      let pr_key = `${process.env.PRIVATE_KEY}`.toString();
       console.log(pr_key);
       let signed = await web3.eth.accounts.signTransaction(
         rawTransaction,
@@ -509,7 +509,7 @@ export class MigrationService {
         gasLimit: web3.utils.toHex(8000000),
         chainId: chainId,
       };
-      let pr_key = `${process.env.private_key}`.toString();
+      let pr_key = `${process.env.PRIVATE_KEY}`.toString();
       console.log(pr_key);
       let signed = await web3.eth.accounts.signTransaction(
         rawTransaction,
