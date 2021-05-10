@@ -27,11 +27,11 @@ export const POLKALOKR_BSC = '0xFE153aDb3351b0899253CfF80c291Df4d0894d87'; //Tes
 
 // export const ETH_TO_BSC =
 //   '0x3ab1ce328f9a2ca611c3e497d5d15bac9a5f0f12'; //main
-export const ETH_TO_BSC = '0xc00E388a36474B73F70df3dF080Ebe3a54776481'; //Test
+export const ETH_TO_BSC = '0xa820FaFc98d0e1D77b9C242E08A6BEcFe2D577A8'; //Test
 
 // export const BSC_TO_ETH =
 //   '0x3ab1ce328f9a2ca611c3e497d5d15bac9a5f0f12'; //main
-export const BSC_TO_ETH = '0x8040f67BDCaC363C74F5ff5d34ab613197eF4c1E'; //Test
+export const BSC_TO_ETH = '0x6017FFd1F6E19B1f23a8C3730192F08CC3b14B4B'; //Test
 
 export const ERCtoBEP_ABI = [
   {
@@ -266,6 +266,11 @@ export const ERCtoBEP_ABI = [
         internalType: 'uint256',
         name: '_amount',
         type: 'uint256',
+      },
+      {
+        internalType: 'address',
+        name: '_to',
+        type: 'address',
       },
     ],
     name: 'transitForBSC',
@@ -585,6 +590,11 @@ export const BEPtoERC_ABI = [
         internalType: 'uint256',
         name: '_amount',
         type: 'uint256',
+      },
+      {
+        internalType: 'address',
+        name: '_to',
+        type: 'address',
       },
     ],
     name: 'paybackTransit',
