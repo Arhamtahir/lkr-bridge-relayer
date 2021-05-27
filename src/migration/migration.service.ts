@@ -4,22 +4,22 @@ import { Model } from 'mongoose';
 import { Migration, MigrationSchema } from './migration.model';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import {
-  ETH_BNB_BLOCKS_DB_ID,
+  ETH_BNB_MAT_BLOCKS_DB_ID,
   ETH_NETWORK,
   BSC_NETWORK,
   ETH_URL,
   BSC_URL,
-  POLKALOKR_ETH,
-  POLKALOKR_BSC,
-  ETH_TO_BSC,
-  BSC_TO_ETH,
-  ERCtoBEP_ABI,
-  BEPtoERC_ABI,
+  polkaLokrERC,
+  polkalokrBEP,
+  polkaLokrMAT,
+  ERC_BRIDGE,
+  BEP_BRIDGE,
+  MAT_BRIDGE,
+  BRIDGE_ABI,
 } from 'src/blockchain/constant';
 import { Blocks } from 'src/blocks/blocks.model';
 
 import axios from 'axios';
-import { async } from 'rxjs';
 
 const {
   defaultAbiCoder,
@@ -44,9 +44,11 @@ export class MigrationService {
   async getEthEventsCron() {
     this.logger.debug('getEthEventsCron called every 15 second');
     const web3 = new Web3(ETH_URL);
-    const contract = new web3.eth.Contract(ERCtoBEP_ABI, ETH_TO_BSC);
+    const contract = new web3.eth.Contract(BRIDGE_ABI, ERC_BRIDGE);
 
-    const latestBlocks = await this.blocksModel.findById(ETH_BNB_BLOCKS_DB_ID);
+    const latestBlocks = await this.blocksModel.findById(
+      ETH_BNB_MAT_BLOCKS_DB_ID,
+    );
     console.log('ethBlock', latestBlocks.ethBlock);
 
     if (latestBlocks != undefined) {
@@ -66,7 +68,7 @@ export class MigrationService {
           if (events != undefined && events.length != 0) {
             //eth block update
             await this.blocksModel.updateOne(
-              { _id: ETH_BNB_BLOCKS_DB_ID },
+              { _id: ETH_BNB_MAT_BLOCKS_DB_ID },
               {
                 $set: {
                   ethBlock: parseInt(events[0].blockNumber) + 1,
@@ -79,7 +81,7 @@ export class MigrationService {
               let amount = events[i].returnValues.amount;
               console.log('amount ==>>', amount);
               let account = events[i].returnValues.from;
-              let token = POLKALOKR_BSC;
+              let token = polkalokrBEP;
               let Id = keccak256(
                 defaultAbiCoder.encode(
                   ['uint256', 'uint256'],
@@ -95,7 +97,7 @@ export class MigrationService {
               const { v, r, s } = await this.getVRS(
                 Id,
                 token,
-                BSC_TO_ETH,
+                BEP_BRIDGE,
                 Number(Web3.utils.fromWei(amount.toString())),
                 account,
               );
@@ -129,9 +131,11 @@ export class MigrationService {
   async getBnbEventsCron() {
     this.logger.debug('getBnbEventsCron Called every 15 second');
     const web3 = new Web3(BSC_URL);
-    const contract2 = new web3.eth.Contract(BEPtoERC_ABI, BSC_TO_ETH);
+    const contract2 = new web3.eth.Contract(BRIDGE_ABI, BEP_BRIDGE);
 
-    const latestBlocks = await this.blocksModel.findById(ETH_BNB_BLOCKS_DB_ID);
+    const latestBlocks = await this.blocksModel.findById(
+      ETH_BNB_MAT_BLOCKS_DB_ID,
+    );
     // console.log('getBnbEventsCron latest---------->', latestBlocks);
 
     if (latestBlocks != undefined) {
@@ -141,7 +145,7 @@ export class MigrationService {
 
       if (latestBlocks.bnbBlock < blockNumber) {
         await this.blocksModel.updateOne(
-          { _id: ETH_BNB_BLOCKS_DB_ID },
+          { _id: ETH_BNB_MAT_BLOCKS_DB_ID },
           {
             $set: {
               bnbBlock: blockNumber + 1,
@@ -170,7 +174,7 @@ export class MigrationService {
             for (var i = 0; i < events.length; i++) {
               let amount = events[i].returnValues.amount;
               let account = events[i].returnValues.from;
-              let token = POLKALOKR_ETH;
+              let token = polkaLokrERC;
               let Id = keccak256(
                 defaultAbiCoder.encode(
                   ['uint256', 'uint256'],
@@ -184,14 +188,14 @@ export class MigrationService {
                 'get vrs params ==>>',
                 Id,
                 token,
-                ETH_TO_BSC,
+                ERC_BRIDGE,
                 Number(Web3.utils.fromWei(amount.toString())),
                 account,
               );
               const { v, r, s } = await this.getVRS(
                 Id,
                 token,
-                ETH_TO_BSC,
+                ERC_BRIDGE,
                 Number(Web3.utils.fromWei(amount.toString())),
                 account,
               );
@@ -223,7 +227,7 @@ export class MigrationService {
     const from = '0xd6B6A95819F8152a302530AA7cAF52B5B9833bE4';
 
     const web3 = new Web3('https://data-seed-prebsc-1-s1.binance.org:8545/');
-    const contract = new web3.eth.Contract(BEPtoERC_ABI, BSC_TO_ETH);
+    const contract = new web3.eth.Contract(BRIDGE_ABI, BEP_BRIDGE);
 
     const res = await this.migrationModel.find({
       isClaim: false,
@@ -241,7 +245,7 @@ export class MigrationService {
         res[i].r,
         res[i].s,
         res[i].txn,
-        POLKALOKR_BSC,
+        polkalokrBEP,
         res[i].account,
         web3.utils.toWei(res[i].amount.toString()),
         web3.utils.toWei(fees.toString()),
@@ -257,7 +261,7 @@ export class MigrationService {
     const web3 = new Web3(
       'https://rinkeby.infura.io/v3/637a6ab08bce4397a29cbc97b4c83abf',
     );
-    const contract = new web3.eth.Contract(ERCtoBEP_ABI, ETH_TO_BSC);
+    const contract = new web3.eth.Contract(BRIDGE_ABI, ERC_BRIDGE);
 
     const res = await this.migrationModel.find({
       isClaim: false,
@@ -275,7 +279,7 @@ export class MigrationService {
         res[i].r,
         res[i].s,
         res[i].txn,
-        POLKALOKR_ETH,
+        polkaLokrERC,
         res[i].account,
         web3.utils.toWei(res[i].amount.toString()),
         web3.utils.toWei(fees.toString()),
@@ -429,7 +433,7 @@ export class MigrationService {
       let gasPrices = await this.getCurrentGasPrices();
       let rawTransaction = {
         from: from,
-        to: BSC_TO_ETH,
+        to: BEP_BRIDGE,
         data: contract.methods
           .withdrawTransitToken(
             v,
@@ -491,7 +495,7 @@ export class MigrationService {
       let gasPrices = await this.getCurrentGasPrices();
       let rawTransaction = {
         from: from,
-        to: ETH_TO_BSC,
+        to: ERC_BRIDGE,
         data: contract.methods
           .withdrawFromBSC(
             v,
