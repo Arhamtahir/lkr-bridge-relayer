@@ -329,7 +329,8 @@ export class MigrationService {
       isClaim: false,
     });
 
-    const from = '0xd6B6A95819F8152a302530AA7cAF52B5B9833bE4';
+    const admin1 = '0xd6B6A95819F8152a302530AA7cAF52B5B9833bE4';
+    const admin2 = '0x51a73C48c8A9Ef78323ae8dc0bc1908A1C49b6c6';
 
     for (let i = 0; i < transactions.length; i++) {
       const web3 = new Web3(chainMap[transactions[i].destinationId].rpc);
@@ -341,7 +342,8 @@ export class MigrationService {
       let fees = await transferFees(transactions[i].destinationId);
       this.ClaimBSC(
         web3,
-        from,
+        i % 2 == 0 ? admin1 : admin2,
+        i % 2 == 0 ? process.env.PRIVATE_KEY1 : process.env.PRIVATE_KEY2,
         contract,
         transactions[i].v,
         transactions[i].r,
@@ -358,7 +360,8 @@ export class MigrationService {
 
   ClaimBSC = async (
     web3,
-    from,
+    admin,
+    privateKey,
     contract,
     v,
     r,
@@ -371,9 +374,9 @@ export class MigrationService {
     chainId,
   ) => {
     try {
-      let count = await web3.eth.getTransactionCount(from, 'pending');
+      let count = await web3.eth.getTransactionCount(admin, 'pending');
       let rawTransaction = {
-        from: from,
+        from: admin,
         to: chainMap[chainId].bridge,
         data: contract.methods
           .withdrawTransitToken(
@@ -392,7 +395,7 @@ export class MigrationService {
         gasLimit: web3.utils.toHex(8000000),
         chainId: chainId,
       };
-      let pr_key = `${process.env.PRIVATE_KEY}`.toString();
+      let pr_key = `${privateKey}`.toString();
       // console.log(pr_key);
       let signed = await web3.eth.accounts.signTransaction(
         rawTransaction,
