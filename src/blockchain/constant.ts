@@ -1,4 +1,4 @@
-export const ETH_BNB_MAT_BLOCKS_DB_ID = '6082bb5e7b6b6341045be688'; //Test
+export const ETH_BNB_MAT_BLOCKS_DB_ID = '60af5f70ae8f97326c554f62'; //Test
 
 export const ETH_NETWORK = 4; //Test
 export const BSC_NETWORK = 97; //Test
@@ -16,7 +16,7 @@ export const polkalokrBEP = '0xFE153aDb3351b0899253CfF80c291Df4d0894d87'; //Test
 export const polkaLokrMAT = '0xFa8AEaA41393B6baf9A699dAe3d91831dd0A9c11'; //Test
 
 //Contract Addresses
-export const ERC_BRIDGE = '0xD8A291D8f57F6e7d8c2E29259bb03a959794717c'; //Test
+export const ERC_BRIDGE = '0x987f5773c7f20611EDEAb729FB262F22f17B0d13'; //Test
 export const BEP_BRIDGE = '0x9a6563392AF1b7C8EDD6f3de170398f4D3849CF9'; //Test
 export const MAT_BRIDGE = '0x4984557c1B130e0696Dc6958B9a458BBbBa026f7'; //Test
 
@@ -131,7 +131,7 @@ export const BRIDGE_ABI = [
       {
         indexed: false,
         internalType: 'bytes32',
-        name: 'transitId',
+        name: 'paybackId',
         type: 'bytes32',
       },
       {
@@ -373,7 +373,7 @@ export const BRIDGE_ABI = [
       },
       {
         internalType: 'bytes32',
-        name: '_transitId',
+        name: '_paybackId',
         type: 'bytes32',
       },
       {

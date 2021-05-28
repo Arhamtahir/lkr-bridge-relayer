@@ -14,12 +14,12 @@ import { MigrationService } from './migration.service';
 export class MigrationController {
   constructor(private readonly migrationService: MigrationService) {}
 
-  @Get('/:account/:chainId')
-  async getMigration(
-    @Param('account') account: string,
-    @Param('chainId') chainId: number,
-  ) {
-    const response = await this.migrationService.getMigration(account, chainId);
-    return response;
-  }
+  // @Get('/:account/:chainId')
+  // async getMigration(
+  //   @Param('account') account: string,
+  //   @Param('chainId') chainId: number,
+  // ) {
+  //   const response = await this.migrationService.getMigration(account, chainId);
+  //   return response;
+  // }
 }

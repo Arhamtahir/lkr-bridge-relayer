@@ -7,10 +7,16 @@ export const BlockSchema = new mongoose.Schema({
   bnbBlock: {
     type: Number,
   },
+  matBlock: {
+    type: Number,
+  },
   ethBlockClaim: {
     type: Number,
   },
   bnbBlockClaim: {
+    type: Number,
+  },
+  matBlockClaim: {
     type: Number,
   },
 });
@@ -18,6 +24,8 @@ export const BlockSchema = new mongoose.Schema({
 export interface Blocks extends mongoose.Document {
   ethBlock: number;
   bnbBlock: number;
+  matBlock: number;
   ethBlockClaim: number;
   bnbBlockClaim: number;
+  matBlockClaim: number;
 }

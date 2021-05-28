@@ -5,10 +5,15 @@ export const MigrationSchema = new mongoose.Schema({
     type: Number,
   },
   account: {
-    //senderAddress
+    type: String,
+  },
+  receiver: {
     type: String,
   },
   chainId: {
+    type: Number,
+  },
+  destinationId: {
     type: Number,
   },
   v: {
@@ -26,13 +31,14 @@ export const MigrationSchema = new mongoose.Schema({
   txn: {
     type: String,
   },
- 
 });
 
 export interface Migration extends mongoose.Document {
   amount: number;
   account: string;
+  receiver: string;
   chainId: number;
+  destinationId: number;
   v: number;
   r: string;
   s: string;
