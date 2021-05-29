@@ -15,7 +15,7 @@ export const getVRS = async (
   _amount,
   _senderAddress,
 ) => {
-  console.log('private key ==>> ', process.env.PRIVATE_KEY);
+  // console.log('private key ==>> ', process.env.PRIVATE_KEY);
   const DomainSeparator = keccak256(
     defaultAbiCoder.encode(['string', 'address'], ['0x01', _contractAddress]),
   );
@@ -33,7 +33,7 @@ export const getVRS = async (
   );
   const { v, r, s } = ecsign(
     Buffer.from(finalHash.slice(2), 'hex'),
-    Buffer.from(process.env.PRIVATE_KEY.slice(2), 'hex'),
+    Buffer.from(process.env.PRIVATE_KEY1.slice(2), 'hex'),
   );
   return { v: v, r: '0x' + r.toString('hex'), s: '0x' + s.toString('hex') };
 };
