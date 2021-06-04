@@ -16,9 +16,9 @@ export const polkalokrBEP = '0xFE153aDb3351b0899253CfF80c291Df4d0894d87'; //Test
 export const polkaLokrMAT = '0xFa8AEaA41393B6baf9A699dAe3d91831dd0A9c11'; //Test
 
 //Contract Addresses
-export const ERC_BRIDGE = '0x987f5773c7f20611EDEAb729FB262F22f17B0d13'; //Test
-export const BEP_BRIDGE = '0x9a6563392AF1b7C8EDD6f3de170398f4D3849CF9'; //Test
-export const MAT_BRIDGE = '0x4984557c1B130e0696Dc6958B9a458BBbBa026f7'; //Test
+export const ERC_BRIDGE = '0x3A8d0D8a10f364dA3218f7195610b26C023cC5C1'; //Test
+export const BEP_BRIDGE = '0x48e8f41cb110abc0e0cdaff11b44c55be1601a43'; //Test
+export const MAT_BRIDGE = '0x433Ee4E156afD2c502C6475C18394F25637F4987'; //Test
 
 //ABIs
 export const BRIDGE_ABI = [

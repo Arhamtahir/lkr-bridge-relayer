@@ -333,6 +333,7 @@ export class MigrationService {
     const admin2 = '0x51a73C48c8A9Ef78323ae8dc0bc1908A1C49b6c6';
 
     for (let i = 0; i < transactions.length; i++) {
+      console.log('RPC ==>>', chainMap[transactions[i].destinationId].rpc);
       const web3 = new Web3(chainMap[transactions[i].destinationId].rpc);
       const contract = new web3.eth.Contract(
         BRIDGE_ABI,
