@@ -420,4 +420,10 @@ export class MigrationService {
       console.log(Err);
     }
   };
+
+  async getTransactionClaimStatus(txhash) {
+    const transacation = await this.migrationModel.findOne({ txn: txhash });
+    const claimStatus = transacation.isClaim;
+    return claimStatus;
+  }
 }

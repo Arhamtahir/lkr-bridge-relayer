@@ -14,6 +14,12 @@ import { MigrationService } from './migration.service';
 export class MigrationController {
   constructor(private readonly migrationService: MigrationService) {}
 
+  @Get('claimStatus/:txhash')
+  async getClaimStatus(@Param('txhash') txhash: string) {
+    console.log('txhash ==>>', txhash);
+    return await this.migrationService.getTransactionClaimStatus(txhash);
+  }
+
   // @Get('/:account/:chainId')
   // async getMigration(
   //   @Param('account') account: string,
