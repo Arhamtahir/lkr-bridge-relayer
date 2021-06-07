@@ -423,7 +423,7 @@ export class MigrationService {
 
   async getTransactionClaimStatus(txhash) {
     const transacation = await this.migrationModel.findOne({ txn: txhash });
-    const claimStatus = transacation.isClaim;
+    const claimStatus = transacation.isClaim ? transacation.isClaim : false;
     return claimStatus;
   }
 }
