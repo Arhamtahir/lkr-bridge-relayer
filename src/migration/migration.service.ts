@@ -333,7 +333,7 @@ export class MigrationService {
     const admin2 = '0x51a73C48c8A9Ef78323ae8dc0bc1908A1C49b6c6';
 
     for (let i = 0; i < transactions.length; i++) {
-      console.log('RPC ==>>', chainMap[transactions[i].destinationId].rpc);
+      // console.log('RPC ==>>', chainMap[transactions[i].destinationId].rpc);
       const web3 = new Web3(chainMap[transactions[i].destinationId].rpc);
       const contract = new web3.eth.Contract(
         BRIDGE_ABI,
@@ -374,6 +374,7 @@ export class MigrationService {
     _fee,
     chainId,
   ) => {
+    console.log(admin, privateKey, _amount, _fee, chainId);
     try {
       let count = await web3.eth.getTransactionCount(admin, 'pending');
       let rawTransaction = {
@@ -411,10 +412,10 @@ export class MigrationService {
           );
         })
         .on('error', (error) => {
-          console.log(error);
+          console.log('error ==>>', error);
         })
         .on('transactionHash', async (hash) => {
-          // console.log(hash);
+          console.log('hash ==>>', hash);
         });
     } catch (Err) {
       console.log(Err);

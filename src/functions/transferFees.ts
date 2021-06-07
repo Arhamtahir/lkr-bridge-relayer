@@ -80,7 +80,7 @@ const MATtoUSD = async (amount) => {
     'https://api.coingecko.com/api/v3/simple/price?ids=matic-network&vs_currencies=usd',
   );
 
-  console.log('mat to usd ==>>', response.data);
+  // console.log('mat to usd ==>>', response.data);
 
   let Token = response.data['matic-network'].usd;
   // console.log(Token, "token");
