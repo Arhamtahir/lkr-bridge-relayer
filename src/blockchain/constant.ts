@@ -16,9 +16,9 @@ export const polkalokrBEP = '0xFE153aDb3351b0899253CfF80c291Df4d0894d87'; //Test
 export const polkaLokrMAT = '0xFa8AEaA41393B6baf9A699dAe3d91831dd0A9c11'; //Test
 
 //Contract Addresses
-export const ERC_BRIDGE = '0x3A8d0D8a10f364dA3218f7195610b26C023cC5C1'; //Test
-export const BEP_BRIDGE = '0x48e8f41cb110abc0e0cdaff11b44c55be1601a43'; //Test
-export const MAT_BRIDGE = '0x433Ee4E156afD2c502C6475C18394F25637F4987'; //Test
+export const ERC_BRIDGE = '0xc46932635cFe649a24cd3a6BAcb20753Eb61B2Bf'; //Test
+export const BEP_BRIDGE = '0xC76a1d42322FD83551D41CaC7D680675E251241c'; //Test
+export const MAT_BRIDGE = '0x49865a27913Cd1C18D0368a381583b81D8B3c127'; //Test
 
 //ABIs
 export const BRIDGE_ABI = [
@@ -89,6 +89,12 @@ export const BRIDGE_ABI = [
         internalType: 'uint256',
         name: 'destinationChainID',
         type: 'uint256',
+      },
+      {
+        indexed: false,
+        internalType: 'bytes32',
+        name: 'migrationId',
+        type: 'bytes32',
       },
     ],
     name: 'Payback',
@@ -265,6 +271,11 @@ export const BRIDGE_ABI = [
         internalType: 'uint256',
         name: '_destinationChainID',
         type: 'uint256',
+      },
+      {
+        internalType: 'bytes32',
+        name: '_migrationId',
+        type: 'bytes32',
       },
     ],
     name: 'paybackTransit',

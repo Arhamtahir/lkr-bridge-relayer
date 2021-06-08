@@ -97,6 +97,7 @@ export class MigrationService {
               );
               let chainId = ETH_NETWORK;
               let destinationId = events[i].returnValues.destinationChainID;
+              let migrationId = events[i].returnValues.migrationId;
               let isClaim = false;
               console.log(
                 'new amount ==>>',
@@ -127,6 +128,7 @@ export class MigrationService {
                   s: s,
                   txn: Id,
                   isClaim,
+                  migrationId,
                 },
                 { upsert: true, new: true, setDefaultsOnInsert: true },
               );
@@ -189,6 +191,7 @@ export class MigrationService {
               );
               let chainId = BSC_NETWORK;
               let destinationId = events[i].returnValues.destinationChainID;
+              let migrationId = events[i].returnValues.migrationId;
               let isClaim = false;
               console.log(
                 'new amount ==>>',
@@ -219,6 +222,7 @@ export class MigrationService {
                   s: s,
                   txn: Id,
                   isClaim,
+                  migrationId,
                 },
                 { upsert: true, new: true, setDefaultsOnInsert: true },
               );
@@ -281,6 +285,7 @@ export class MigrationService {
               );
               let chainId = MAT_NETWORK;
               let destinationId = events[i].returnValues.destinationChainID;
+              let migrationId = events[i].returnValues.migrationId;
               let isClaim = false;
               console.log(
                 'new amount ==>>',
@@ -311,6 +316,7 @@ export class MigrationService {
                   s: s,
                   txn: Id,
                   isClaim,
+                  migrationId,
                 },
                 { upsert: true, new: true, setDefaultsOnInsert: true },
               );
@@ -423,7 +429,9 @@ export class MigrationService {
   };
 
   async getTransactionClaimStatus(txhash) {
-    const transacation = await this.migrationModel.findOne({ txn: txhash });
+    const transacation = await this.migrationModel.findOne({
+      migrationId: txhash,
+    });
     const claimStatus = transacation.isClaim ? transacation.isClaim : false;
     return claimStatus;
   }
