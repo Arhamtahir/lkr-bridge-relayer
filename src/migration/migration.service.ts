@@ -412,17 +412,18 @@ export class MigrationService {
       await web3.eth
         .sendSignedTransaction(signed.rawTransaction)
         .on('confirmation', async (confirmationNumber, receipt) => {
+          // console.log('Hamzah ==>  ' + receipt);
           await this.migrationModel.findOneAndUpdate(
             { txn: _transitId },
-            { isClaim: true },
+            { isClaim: true, migrationHash: receipt.transactionHash },
           );
         })
         .on('error', (error) => {
           console.log('error ==>>', error);
-        })
-        .on('transactionHash', async (hash) => {
-          console.log('hash ==>>', hash);
         });
+      // .on('transactionHash', async (hash) => {
+      //   console.log('hash ==>>', hash);
+      // });
     } catch (Err) {
       console.log(Err);
     }
@@ -433,6 +434,9 @@ export class MigrationService {
       migrationId: txhash,
     });
     const claimStatus = transacation.isClaim ? transacation.isClaim : false;
-    return claimStatus;
+    const migrationHash = transacation.migrationHash
+      ? transacation.migrationHash
+      : null;
+    return { claimStatus, migrationHash };
   }
 }

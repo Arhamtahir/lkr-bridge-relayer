@@ -34,6 +34,9 @@ export const MigrationSchema = new mongoose.Schema({
   migrationId: {
     type: String,
   },
+  migrationHash: {
+    type: String,
+  },
 });
 
 export interface Migration extends mongoose.Document {
@@ -48,4 +51,5 @@ export interface Migration extends mongoose.Document {
   isClaim: boolean;
   txn: string;
   migrationId: string;
+  migrationHash: string;
 }
