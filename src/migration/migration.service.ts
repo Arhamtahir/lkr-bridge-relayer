@@ -1,17 +1,14 @@
-import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Migration, MigrationSchema } from './migration.model';
-import { Cron, CronExpression } from '@nestjs/schedule';
+import { Migration } from './migration.model';
+import { Cron } from '@nestjs/schedule';
 import {
   ETH_BNB_MAT_BLOCKS_DB_ID,
   ETH_NETWORK,
   BSC_NETWORK,
   ETH_URL,
   BSC_URL,
-  polkaLokrERC,
-  polkalokrBEP,
-  polkaLokrMAT,
   ERC_BRIDGE,
   BEP_BRIDGE,
   MAT_BRIDGE,
@@ -23,19 +20,12 @@ import { Blocks } from 'src/blocks/blocks.model';
 
 import { chainMap } from '../utils/chainMap.js';
 
-import axios from 'axios';
-
 import { getVRS } from '../functions/getVRS';
+import { getPastEvents } from '../functions/getPastEvents';
 import { transferFees } from '../functions/transferFees';
 
-const {
-  defaultAbiCoder,
-  hexlify,
-  keccak256,
-  toUtf8Bytes,
-  solidityPack,
-} = require('ethers/lib/utils');
-const { ecsign } = require('ethereumjs-util');
+const { defaultAbiCoder, keccak256 } = require('ethers/lib/utils');
+
 const Web3 = require('web3');
 
 @Injectable()
@@ -49,281 +39,75 @@ export class MigrationService {
 
   @Cron('*/15 * * * * *')
   async getEthEventsCron() {
-    // this.logger.debug('getEthEventsCron called every 15 second');
-    const web3 = new Web3(ETH_URL);
-    const contract = new web3.eth.Contract(BRIDGE_ABI, ERC_BRIDGE);
-
     const latestBlocks = await this.blocksModel.findById(
       ETH_BNB_MAT_BLOCKS_DB_ID,
     );
-    console.log('ethBlock', latestBlocks.ethBlock);
 
-    if (latestBlocks != undefined) {
-      await contract.getPastEvents(
-        'Payback',
+    const {
+      events,
+      ethNewBlock,
+      bnbNewBlock,
+      matNewBlock,
+    } = await getPastEvents(latestBlocks);
+
+    console.log('All Create Events', events);
+
+    if (events != undefined && events.length != 0) {
+      // store events in DB
+      for (var i = 0; i < events.length; i++) {
+        let amount = events[i].returnValues.amount;
+        console.log('amount ==>>', amount);
+        let account = events[i].returnValues.sender;
+        let receiver = events[i].returnValues.from;
+        let chainId = events[i].sourceChain;
+        let destinationId = events[i].returnValues.destinationChainID;
+        let token = chainMap[events[i].returnValues.destinationChainID].token;
+        let Id = keccak256(
+          defaultAbiCoder.encode(
+            ['uint256', 'uint256'],
+            [events[i].blockNumber, events[i].transactionIndex],
+          ),
+        );
+        const { v, r, s } = await getVRS(
+          Id,
+          token,
+          chainMap[events[i].returnValues.destinationChainID].bridge,
+          Number(Web3.utils.fromWei(amount.toString())),
+          account,
+        );
+        let isClaim = false;
+        let migrationId = events[i].returnValues.migrationId;
+
+        const res = await this.migrationModel.findOneAndUpdate(
+          { chainId: events[i].sourceChain, txn: Id },
+          {
+            amount: Web3.utils.fromWei(amount.toString()),
+            account,
+            receiver,
+            chainId,
+            destinationId,
+            v: parseInt(v),
+            r: r,
+            s: s,
+            txn: Id,
+            isClaim,
+            migrationId,
+          },
+          { upsert: true, new: true, setDefaultsOnInsert: true },
+        );
+
+        // console.log('res----------->', res);
+      }
+
+      // blocks update
+      await this.blocksModel.updateMany(
+        { _id: ETH_BNB_MAT_BLOCKS_DB_ID },
         {
-          fromBlock: latestBlocks.ethBlock,
-          toBlock: 'latest',
-        },
-        async (err, events) => {
-          if (err) {
-            console.log('err getEthEventsCron', err);
-          }
-          console.log('getEthEventsCron events', events);
-
-          if (events != undefined && events.length != 0) {
-            //eth block update
-            await this.blocksModel.updateOne(
-              { _id: ETH_BNB_MAT_BLOCKS_DB_ID },
-              {
-                $set: {
-                  ethBlock: parseInt(events[0].blockNumber) + 1,
-                },
-              },
-            );
-
-            // store events in DB
-            for (var i = 0; i < events.length; i++) {
-              let amount = events[i].returnValues.amount;
-              console.log('amount ==>>', amount);
-              let account = events[i].returnValues.sender;
-              let token =
-                chainMap[events[i].returnValues.destinationChainID].token;
-              let Id = keccak256(
-                defaultAbiCoder.encode(
-                  ['uint256', 'uint256'],
-                  [events[i].blockNumber, events[i].transactionIndex],
-                ),
-              );
-              let chainId = ETH_NETWORK;
-              let destinationId = events[i].returnValues.destinationChainID;
-              let migrationId = events[i].returnValues.migrationId;
-              let isClaim = false;
-              console.log(
-                'new amount ==>>',
-                Number(Web3.utils.fromWei(amount.toString())),
-              );
-              const { v, r, s } = await getVRS(
-                Id,
-                token,
-                chainMap[events[i].returnValues.destinationChainID].bridge,
-                Number(Web3.utils.fromWei(amount.toString())),
-                account,
-              );
-
-              console.log(v, r, s, 'getVRS');
-
-              let receiver = events[i].returnValues.from;
-
-              const res = await this.migrationModel.findOneAndUpdate(
-                { chainId: ETH_NETWORK, txn: Id },
-                {
-                  amount: web3.utils.fromWei(amount.toString()),
-                  account,
-                  receiver,
-                  chainId,
-                  destinationId,
-                  v: parseInt(v),
-                  r: r,
-                  s: s,
-                  txn: Id,
-                  isClaim,
-                  migrationId,
-                },
-                { upsert: true, new: true, setDefaultsOnInsert: true },
-              );
-
-              console.log('res----------->', res);
-            }
-          }
-        },
-      );
-    }
-  }
-
-  @Cron('*/15 * * * * *')
-  async getBnbEventsCron() {
-    // this.logger.debug('getEthEventsCron called every 15 second');
-    const web3 = new Web3(BSC_URL);
-    const contract = new web3.eth.Contract(BRIDGE_ABI, BEP_BRIDGE);
-
-    const latestBlocks = await this.blocksModel.findById(
-      ETH_BNB_MAT_BLOCKS_DB_ID,
-    );
-    console.log('bnbBlock', latestBlocks.bnbBlock);
-
-    if (latestBlocks != undefined) {
-      await contract.getPastEvents(
-        'Payback',
-        {
-          fromBlock: latestBlocks.bnbBlock,
-          toBlock: 'latest',
-        },
-        async (err, events) => {
-          if (err) {
-            console.log('err getBnbEventsCron', err);
-          }
-          console.log('getBnbEventsCron events', events);
-
-          if (events != undefined && events.length != 0) {
-            //eth block update
-            await this.blocksModel.updateOne(
-              { _id: ETH_BNB_MAT_BLOCKS_DB_ID },
-              {
-                $set: {
-                  bnbBlock: parseInt(events[0].blockNumber) + 1,
-                },
-              },
-            );
-
-            // store events in DB
-            for (var i = 0; i < events.length; i++) {
-              let amount = events[i].returnValues.amount;
-              console.log('amount ==>>', amount);
-              let account = events[i].returnValues.sender;
-              let token =
-                chainMap[events[i].returnValues.destinationChainID].token;
-              let Id = keccak256(
-                defaultAbiCoder.encode(
-                  ['uint256', 'uint256'],
-                  [events[i].blockNumber, events[i].transactionIndex],
-                ),
-              );
-              let chainId = BSC_NETWORK;
-              let destinationId = events[i].returnValues.destinationChainID;
-              let migrationId = events[i].returnValues.migrationId;
-              let isClaim = false;
-              console.log(
-                'new amount ==>>',
-                Number(Web3.utils.fromWei(amount.toString())),
-              );
-              const { v, r, s } = await getVRS(
-                Id,
-                token,
-                chainMap[events[i].returnValues.destinationChainID].bridge,
-                Number(Web3.utils.fromWei(amount.toString())),
-                account,
-              );
-
-              console.log(v, r, s, 'getVRS');
-
-              let receiver = events[i].returnValues.from;
-
-              const res = await this.migrationModel.findOneAndUpdate(
-                { chainId: BSC_NETWORK, txn: Id },
-                {
-                  amount: web3.utils.fromWei(amount.toString()),
-                  account,
-                  receiver,
-                  chainId,
-                  destinationId,
-                  v: parseInt(v),
-                  r: r,
-                  s: s,
-                  txn: Id,
-                  isClaim,
-                  migrationId,
-                },
-                { upsert: true, new: true, setDefaultsOnInsert: true },
-              );
-
-              console.log('res----------->', res);
-            }
-          }
-        },
-      );
-    }
-  }
-
-  @Cron('*/15 * * * * *')
-  async getMatEventsCron() {
-    // this.logger.debug('getEthEventsCron called every 15 second');
-    const web3 = new Web3(MAT_URL);
-    const contract = new web3.eth.Contract(BRIDGE_ABI, MAT_BRIDGE);
-
-    const latestBlocks = await this.blocksModel.findById(
-      ETH_BNB_MAT_BLOCKS_DB_ID,
-    );
-    console.log('matBlock', latestBlocks.matBlock);
-
-    if (latestBlocks != undefined) {
-      await contract.getPastEvents(
-        'Payback',
-        {
-          fromBlock: latestBlocks.matBlock,
-          toBlock: 'latest',
-        },
-        async (err, events) => {
-          if (err) {
-            console.log('err getMatEventsCron', err);
-          }
-          console.log('getMatEventsCron events', events);
-
-          if (events != undefined && events.length != 0) {
-            //eth block update
-            await this.blocksModel.updateOne(
-              { _id: ETH_BNB_MAT_BLOCKS_DB_ID },
-              {
-                $set: {
-                  matBlock: parseInt(events[0].blockNumber) + 1,
-                },
-              },
-            );
-
-            // store events in DB
-            for (var i = 0; i < events.length; i++) {
-              let amount = events[i].returnValues.amount;
-              console.log('amount ==>>', amount);
-              let account = events[i].returnValues.sender;
-              let token =
-                chainMap[events[i].returnValues.destinationChainID].token;
-              let Id = keccak256(
-                defaultAbiCoder.encode(
-                  ['uint256', 'uint256'],
-                  [events[i].blockNumber, events[i].transactionIndex],
-                ),
-              );
-              let chainId = MAT_NETWORK;
-              let destinationId = events[i].returnValues.destinationChainID;
-              let migrationId = events[i].returnValues.migrationId;
-              let isClaim = false;
-              console.log(
-                'new amount ==>>',
-                Number(Web3.utils.fromWei(amount.toString())),
-              );
-              const { v, r, s } = await getVRS(
-                Id,
-                token,
-                chainMap[events[i].returnValues.destinationChainID].bridge,
-                Number(Web3.utils.fromWei(amount.toString())),
-                account,
-              );
-
-              console.log(v, r, s, 'getVRS');
-
-              let receiver = events[i].returnValues.from;
-
-              const res = await this.migrationModel.findOneAndUpdate(
-                { chainId: MAT_NETWORK, txn: Id },
-                {
-                  amount: web3.utils.fromWei(amount.toString()),
-                  account,
-                  receiver,
-                  chainId,
-                  destinationId,
-                  v: parseInt(v),
-                  r: r,
-                  s: s,
-                  txn: Id,
-                  isClaim,
-                  migrationId,
-                },
-                { upsert: true, new: true, setDefaultsOnInsert: true },
-              );
-
-              console.log('res----------->', res);
-            }
-          }
+          $set: {
+            ethBlock: ethNewBlock,
+            bnbBlock: bnbNewBlock,
+            matBlock: matNewBlock,
+          },
         },
       );
     }
