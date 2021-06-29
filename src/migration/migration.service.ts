@@ -3,19 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Migration } from './migration.model';
 import { Cron } from '@nestjs/schedule';
-import {
-  ETH_BNB_MAT_BLOCKS_DB_ID,
-  ETH_NETWORK,
-  BSC_NETWORK,
-  ETH_URL,
-  BSC_URL,
-  ERC_BRIDGE,
-  BEP_BRIDGE,
-  MAT_BRIDGE,
-  BRIDGE_ABI,
-  MAT_URL,
-  MAT_NETWORK,
-} from 'src/blockchain/constant';
+import { ETH_BNB_MAT_BLOCKS_DB_ID, BRIDGE_ABI } from 'src/blockchain/constant';
 import { Blocks } from 'src/blocks/blocks.model';
 
 import { chainMap } from '../utils/chainMap.js';

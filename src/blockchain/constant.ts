@@ -1,24 +1,24 @@
+require('dotenv').config();
+
 export const ETH_BNB_MAT_BLOCKS_DB_ID = '60af5f70ae8f97326c554f62'; //Test
 
 export const ETH_NETWORK = 4; //Test
 export const BSC_NETWORK = 97; //Test
 export const MAT_NETWORK = 80001; //Test
 
-export const ETH_URL =
-  'https://rinkeby.infura.io/v3/c89f216154d84b83bb9344a7d0a91108'; //Test
-
-export const BSC_URL = 'https://data-seed-prebsc-1-s1.binance.org:8545/'; //Test
-export const MAT_URL = 'https://rpc-mumbai.matic.today'; //Test
+export const ETH_URL = process.env.ETH_URL; //Test
+export const BSC_URL = process.env.BSC_URL; //Test
+export const MAT_URL = process.env.MAT_URL; //Test
 
 //Token Addresses
-export const polkaLokrERC = '0x87DA04c73109bCa7c7F6E095dDa3A4f6Ec898011'; //Test
-export const polkalokrBEP = '0xFE153aDb3351b0899253CfF80c291Df4d0894d87'; //Test
-export const polkaLokrMAT = '0xFa8AEaA41393B6baf9A699dAe3d91831dd0A9c11'; //Test
+export const TOKEN_ERC = process.env.TOKEN_ERC; //Test
+export const TOKEN_BEP = process.env.TOKEN_BEP; //Test
+export const TOKEN_MAT = process.env.TOKEN_MAT; //Test
 
 //Contract Addresses
-export const ERC_BRIDGE = '0xc46932635cFe649a24cd3a6BAcb20753Eb61B2Bf'; //Test
-export const BEP_BRIDGE = '0xC76a1d42322FD83551D41CaC7D680675E251241c'; //Test
-export const MAT_BRIDGE = '0x49865a27913Cd1C18D0368a381583b81D8B3c127'; //Test
+export const ERC_BRIDGE = process.env.ERC_BRIDGE; //Test
+export const BEP_BRIDGE = process.env.BEP_BRIDGE; //Test
+export const MAT_BRIDGE = process.env.MAT_BRIDGE; //Test
 
 //ABIs
 export const BRIDGE_ABI = [
