@@ -27,14 +27,14 @@ export class MigrationService {
 
   @Cron('*/15 * * * * *')
   async getEthEventsCron() {
-    const latestBlocks = await this.bridgeModel.findById(BRIDGE_ID);
+    const bridge = await this.bridgeModel.findById(BRIDGE_ID);
 
     const {
       events,
       ethNewBlock,
       bnbNewBlock,
       matNewBlock,
-    } = await getPastEvents(latestBlocks);
+    } = await getPastEvents(bridge);
 
     console.log('All Create Events', events);
 
