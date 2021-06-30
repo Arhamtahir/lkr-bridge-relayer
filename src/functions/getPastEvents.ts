@@ -11,7 +11,7 @@ import {
   ETH_NETWORK,
   BSC_NETWORK,
   MAT_NETWORK,
-} from 'src/blockchain/constant';
+} from '../utils/constant';
 
 export const getPastEvents = async (latestBlocks) => {
   var allEvents = [];

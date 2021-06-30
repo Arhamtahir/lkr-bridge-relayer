@@ -1,6 +1,9 @@
 import * as mongoose from 'mongoose';
 
-export const BlockSchema = new mongoose.Schema({
+export const BridgeSchema = new mongoose.Schema({
+  color: {
+    type: String,
+  },
   ethBlock: {
     type: Number,
   },
@@ -21,7 +24,8 @@ export const BlockSchema = new mongoose.Schema({
   },
 });
 
-export interface Blocks extends mongoose.Document {
+export interface Bridge extends mongoose.Document {
+  color: string;
   ethBlock: number;
   bnbBlock: number;
   matBlock: number;

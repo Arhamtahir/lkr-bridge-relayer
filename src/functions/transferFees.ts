@@ -1,4 +1,4 @@
-import { ETH_NETWORK, BSC_NETWORK, MAT_NETWORK } from '../blockchain/constant';
+import { ETH_NETWORK, BSC_NETWORK, MAT_NETWORK } from '../utils/constant';
 import axios from 'axios';
 
 export const transferFees = async (chainId) => {

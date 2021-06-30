@@ -1,6 +1,6 @@
 require('dotenv').config();
 
-export const ETH_BNB_MAT_BLOCKS_DB_ID = '60af5f70ae8f97326c554f62'; //Test
+export const BRIDGE_ID = process.env.BRIDGE_ID; //Test
 
 export const ETH_NETWORK = 4; //Test
 export const BSC_NETWORK = 97; //Test
