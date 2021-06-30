@@ -8,7 +8,7 @@ import {
   ETH_URL,
   BSC_URL,
   MAT_URL,
-} from '../blockchain/constant';
+} from '../utils/constant';
 
 export const chainMap = {
   1: {

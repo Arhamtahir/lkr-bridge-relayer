@@ -3,8 +3,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Migration } from './migration.model';
 import { Cron } from '@nestjs/schedule';
-import { ETH_BNB_MAT_BLOCKS_DB_ID, BRIDGE_ABI } from 'src/blockchain/constant';
-import { Blocks } from 'src/blocks/blocks.model';
+import { BRIDGE_ID, BRIDGE_ABI } from '../utils/constant';
+import { Bridge } from 'src/bridge/bridge.model';
 
 import { chainMap } from '../utils/chainMap.js';
 
@@ -21,22 +21,20 @@ export class MigrationService {
   constructor(
     @InjectModel('MigrationV3')
     private readonly migrationModel: Model<Migration>,
-    @InjectModel('Blocks') private readonly blocksModel: Model<Blocks>,
+    @InjectModel('Bridge') private readonly bridgeModel: Model<Bridge>,
   ) {}
   private readonly logger = new Logger('Migration');
 
   @Cron('*/15 * * * * *')
   async getEthEventsCron() {
-    const latestBlocks = await this.blocksModel.findById(
-      ETH_BNB_MAT_BLOCKS_DB_ID,
-    );
+    const bridge = await this.bridgeModel.findById(BRIDGE_ID);
 
     const {
       events,
       ethNewBlock,
       bnbNewBlock,
       matNewBlock,
-    } = await getPastEvents(latestBlocks);
+    } = await getPastEvents(bridge);
 
     console.log('All Create Events', events);
 
@@ -88,8 +86,8 @@ export class MigrationService {
       }
 
       // blocks update
-      await this.blocksModel.updateMany(
-        { _id: ETH_BNB_MAT_BLOCKS_DB_ID },
+      await this.bridgeModel.updateMany(
+        { _id: BRIDGE_ID },
         {
           $set: {
             ethBlock: ethNewBlock,

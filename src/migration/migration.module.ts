@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { BlockSchema } from 'src/blocks/blocks.model';
+import { BridgeSchema } from 'src/bridge/bridge.model';
 import { MigrationController } from './migration.controller';
 import { MigrationSchema } from './migration.model';
 import { MigrationService } from './migration.service';
@@ -9,7 +9,7 @@ import { MigrationService } from './migration.service';
   imports: [
     MongooseModule.forFeature([
       { name: 'MigrationV3', schema: MigrationSchema },
-      { name: 'Blocks', schema: BlockSchema },
+      { name: 'Bridge', schema: BridgeSchema },
     ]),
   ],
   controllers: [MigrationController],

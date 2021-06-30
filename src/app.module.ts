@@ -7,7 +7,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 
 //
 import { MigrationModule } from './migration/migration.module';
-import { BlocksModule } from './blocks/blocks.module';
+import { BridgeModule } from './bridge/bridge.module';
 
 @Module({
   imports: [
@@ -20,7 +20,7 @@ import { BlocksModule } from './blocks/blocks.module';
       useFindAndModify: false,
     }),
     MigrationModule,
-    BlocksModule,
+    BridgeModule,
   ],
   controllers: [AppController],
   providers: [AppService],

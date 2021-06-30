@@ -11,21 +11,21 @@ import {
   ETH_NETWORK,
   BSC_NETWORK,
   MAT_NETWORK,
-} from 'src/blockchain/constant';
+} from '../utils/constant';
 
-export const getPastEvents = async (latestBlocks) => {
+export const getPastEvents = async (bridge) => {
   var allEvents = [];
   var ethNewBlock;
   var bnbNewBlock;
   var matNewBlock;
 
-  if (latestBlocks) {
+  if (bridge) {
     var web3 = new Web3(ETH_URL);
     var contract = new web3.eth.Contract(BRIDGE_ABI, ERC_BRIDGE);
     await contract.getPastEvents(
       'Payback',
       {
-        fromBlock: latestBlocks.ethBlock,
+        fromBlock: bridge.ethBlock,
         toBlock: 'latest',
       },
       async (err, events) => {
@@ -44,7 +44,7 @@ export const getPastEvents = async (latestBlocks) => {
     await contract.getPastEvents(
       'Payback',
       {
-        fromBlock: latestBlocks.bnbBlock,
+        fromBlock: bridge.bnbBlock,
         toBlock: 'latest',
       },
       async (err, events) => {
@@ -63,7 +63,7 @@ export const getPastEvents = async (latestBlocks) => {
     await contract.getPastEvents(
       'Payback',
       {
-        fromBlock: latestBlocks.matBlock,
+        fromBlock: bridge.matBlock,
         toBlock: 'latest',
       },
       async (err, events) => {
@@ -79,8 +79,8 @@ export const getPastEvents = async (latestBlocks) => {
   }
   return {
     events: allEvents,
-    ethNewBlock: ethNewBlock ? ethNewBlock : latestBlocks.ethBlock,
-    bnbNewBlock: bnbNewBlock ? bnbNewBlock : latestBlocks.bnbBlock,
-    matNewBlock: matNewBlock ? matNewBlock : latestBlocks.matBlock,
+    ethNewBlock: ethNewBlock ? ethNewBlock : bridge.ethBlock,
+    bnbNewBlock: bnbNewBlock ? bnbNewBlock : bridge.bnbBlock,
+    matNewBlock: matNewBlock ? matNewBlock : bridge.matBlock,
   };
 };
