@@ -26,7 +26,7 @@ export class MigrationService {
   private readonly logger = new Logger('Migration');
 
   @Cron('*/15 * * * * *')
-  async getEthEventsCron() {
+  async getEventsCron() {
     const bridge = await this.bridgeModel.findById(BRIDGE_ID);
 
     const {
@@ -105,11 +105,10 @@ export class MigrationService {
       isClaim: false,
     });
 
-    const admin1 = '0xd6B6A95819F8152a302530AA7cAF52B5B9833bE4';
-    const admin2 = '0x51a73C48c8A9Ef78323ae8dc0bc1908A1C49b6c6';
+    const admin1 = process.env.ADMIN_1;
+    const admin2 = process.env.ADMIN_2;
 
     for (let i = 0; i < transactions.length; i++) {
-      // console.log('RPC ==>>', chainMap[transactions[i].destinationId].rpc);
       const web3 = new Web3(chainMap[transactions[i].destinationId].rpc);
       const contract = new web3.eth.Contract(
         BRIDGE_ABI,
@@ -117,7 +116,7 @@ export class MigrationService {
       );
 
       let fees = await transferFees(transactions[i].destinationId);
-      this.ClaimBSC(
+      this.ClaimHandle(
         web3,
         i % 2 == 0 ? admin1 : admin2,
         i % 2 == 0 ? process.env.PRIVATE_KEY1 : process.env.PRIVATE_KEY2,
@@ -135,7 +134,7 @@ export class MigrationService {
     }
   }
 
-  ClaimBSC = async (
+  ClaimHandle = async (
     web3,
     admin,
     privateKey,
@@ -174,7 +173,7 @@ export class MigrationService {
         chainId: chainId,
       };
       let pr_key = `${privateKey}`.toString();
-      // console.log(pr_key);
+
       let signed = await web3.eth.accounts.signTransaction(
         rawTransaction,
         pr_key,
@@ -182,7 +181,6 @@ export class MigrationService {
       await web3.eth
         .sendSignedTransaction(signed.rawTransaction)
         .on('confirmation', async (confirmationNumber, receipt) => {
-          // console.log('Hamzah ==>  ' + receipt);
           await this.migrationModel.findOneAndUpdate(
             { txn: _transitId },
             { isClaim: true, migrationHash: receipt.transactionHash },
@@ -191,22 +189,8 @@ export class MigrationService {
         .on('error', (error) => {
           console.log('error ==>>', error);
         });
-      // .on('transactionHash', async (hash) => {
-      //   console.log('hash ==>>', hash);
-      // });
     } catch (Err) {
       console.log(Err);
     }
   };
-
-  async getTransactionClaimStatus(txhash) {
-    const transacation = await this.migrationModel.findOne({
-      migrationId: txhash,
-    });
-    const claimStatus = transacation.isClaim ? transacation.isClaim : false;
-    const migrationHash = transacation.migrationHash
-      ? transacation.migrationHash
-      : null;
-    return { claimStatus, migrationHash };
-  }
 }
