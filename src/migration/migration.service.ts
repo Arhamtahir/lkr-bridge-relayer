@@ -84,19 +84,19 @@ export class MigrationService {
 
         // console.log('res----------->', res);
       }
-
-      // blocks update
-      await this.bridgeModel.updateMany(
-        { _id: BRIDGE_ID },
-        {
-          $set: {
-            ethBlock: ethNewBlock,
-            bnbBlock: bnbNewBlock,
-            matBlock: matNewBlock,
-          },
-        },
-      );
     }
+
+    // blocks update
+    await this.bridgeModel.updateMany(
+      { _id: BRIDGE_ID },
+      {
+        $set: {
+          ethBlock: ethNewBlock,
+          bnbBlock: bnbNewBlock,
+          matBlock: matNewBlock,
+        },
+      },
+    );
   }
 
   @Cron('*/15 * * * * *')
