@@ -47,7 +47,8 @@ jobs:
         # Build a docker container and
         # push it to ECR
         docker build -t polkalokr-migration-relayer .
-        docker push $ECR_REPOSITORY:$IMAGE_TAG
-        echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+        docker tag polkalokr-migration-relayer:latest 560073339755.dkr.ecr.eu-west-2.amazonaws.com/polkalokr-migration-relayer:latest
+        docker push 560073339755.dkr.ecr.eu-west-2.amazonaws.com/polkalokr-migration-relayer:latest
+      
 
   
