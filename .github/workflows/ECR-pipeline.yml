@@ -42,12 +42,12 @@ jobs:
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY: polkalokr-migration-relayer
-        IMAGE_TAG: latest
+        IMAGE_TAG: $(git rev-parse --short HEAD)
       run: |
         # Build a docker container and
         # push it to ECR
         docker build -t polkalokr-migration-relayer .
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        docker push $ECR_REPOSITORY:$IMAGE_TAG
         echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
   
