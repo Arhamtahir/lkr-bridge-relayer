@@ -46,8 +46,7 @@ jobs:
       run: |
         # Build a docker container and
         # push it to ECR
-        docker build -t polkalokr-migration-relayer .
-        docker tag polkalokr-migration-relayer:$IMAGE_TAG 560073339755.dkr.ecr.eu-west-2.amazonaws.com/polkalokr-migration-relayer:$IMAGE_TAG
+        docker build -t polkalokr-migration-relayer:$IMAGE_TAG .
         docker push 560073339755.dkr.ecr.eu-west-2.amazonaws.com/polkalokr-migration-relayer:$IMAGE_TAG
       
 
