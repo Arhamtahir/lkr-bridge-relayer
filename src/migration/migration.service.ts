@@ -67,6 +67,7 @@ export class MigrationService {
         const res = await this.migrationModel.findOneAndUpdate(
           { chainId: events[i].sourceChain, txn: Id },
           {
+            bridgeID: BRIDGE_ID,
             amount: Web3.utils.fromWei(amount.toString()),
             account,
             receiver,
@@ -102,6 +103,7 @@ export class MigrationService {
   @Cron('*/15 * * * * *')
   async claim() {
     const transactions = await this.migrationModel.find({
+      bridgeID: BRIDGE_ID,
       isClaim: false,
     });
 

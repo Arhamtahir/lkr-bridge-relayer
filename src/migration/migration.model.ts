@@ -1,6 +1,9 @@
 import * as mongoose from 'mongoose';
 
 export const MigrationSchema = new mongoose.Schema({
+  bridgeID: {
+    type: String,
+  },
   amount: {
     type: Number,
   },
@@ -40,6 +43,7 @@ export const MigrationSchema = new mongoose.Schema({
 });
 
 export interface Migration extends mongoose.Document {
+  bridgeID: string;
   amount: number;
   account: string;
   receiver: string;
