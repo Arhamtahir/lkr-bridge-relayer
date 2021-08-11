@@ -1,5 +1,187 @@
 import { ETH_NETWORK, BSC_NETWORK, MAT_NETWORK } from '../utils/constant';
 import axios from 'axios';
+import Web3 from 'web3';
+import { chainMap } from '../utils/chainMap';
+
+let databaseABI: any = [
+  {
+    inputs: [],
+    stateMutability: 'nonpayable',
+    type: 'constructor',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'address',
+        name: 'bridgeContract',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        internalType: 'address',
+        name: 'bridgeOwner',
+        type: 'address',
+      },
+    ],
+    name: 'BridgEdit',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'previousOwner',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'newOwner',
+        type: 'address',
+      },
+    ],
+    name: 'OwnershipTransferred',
+    type: 'event',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'bridgeContract',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: 'bridgeOwner',
+        type: 'address',
+      },
+    ],
+    name: 'addBridge',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'getOwnerFee',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'getPolkaLokrFee',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'getRecepient',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'owner',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'renounceOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '_ownerFee',
+        type: 'uint256',
+      },
+    ],
+    name: 'setOwnerFee',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '_polkaFee',
+        type: 'uint256',
+      },
+    ],
+    name: 'setPolkaLokrFee',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_recepient',
+        type: 'address',
+      },
+    ],
+    name: 'setRecepient',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'newOwner',
+        type: 'address',
+      },
+    ],
+    name: 'transferOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+];
+const databaseAddress = {
+  4: '0xcD1EA50E7092A62B8DE64D5f2C16F729AE88Dfae',
+  97: '0x74f33b6D2aBBc86e582475e84314339C75c5290B',
+  80001: '0x1F3ec6173f0a72fE0457093bA945C66b572E8db0',
+};
 
 export const transferFees = async (chainId) => {
   // const web3 = new Web3(provider);
@@ -47,6 +229,17 @@ export const transferFees = async (chainId) => {
     let txFeesInLKR = await USDtoLKR(txFeesInUsd);
     finalTransactionFees = txFeesInLKR;
   }
+
+  let web3 = new Web3(chainMap[chainId].rpc);
+  let contract = new web3.eth.Contract(databaseABI, databaseAddress[chainId]);
+
+  let ownerFeePercentage = await contract.methods.getOwnerFee().call();
+
+  let ownerFee =
+    finalTransactionFees *
+    (Number(web3.utils.fromWei(ownerFeePercentage)) / 100);
+
+  finalTransactionFees = finalTransactionFees + ownerFee;
 
   return finalTransactionFees;
 };
