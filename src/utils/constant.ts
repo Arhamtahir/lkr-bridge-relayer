@@ -34,6 +34,11 @@ export const BRIDGE_ABI = [
         name: '_signer2',
         type: 'address',
       },
+      {
+        internalType: 'address',
+        name: 'Database',
+        type: 'address',
+      },
     ],
     stateMutability: 'nonpayable',
     type: 'constructor',
@@ -136,6 +141,44 @@ export const BRIDGE_ABI = [
     inputs: [
       {
         indexed: false,
+        internalType: 'address',
+        name: '_user',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        internalType: 'address',
+        name: '_bridgeAddress',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        internalType: 'bool',
+        name: '_state',
+        type: 'bool',
+      },
+    ],
+    name: 'WhiteListAddressToggled',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'bool',
+        name: 'state',
+        type: 'bool',
+      },
+    ],
+    name: 'WhiteListToggled',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
         internalType: 'bytes32',
         name: 'paybackId',
         type: 'bytes32',
@@ -200,6 +243,19 @@ export const BRIDGE_ABI = [
     type: 'function',
   },
   {
+    inputs: [],
+    name: 'dataBase',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
     inputs: [
       {
         internalType: 'bytes32',
@@ -213,6 +269,19 @@ export const BRIDGE_ABI = [
         internalType: 'bool',
         name: '',
         type: 'bool',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'feeCollected',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
       },
     ],
     stateMutability: 'view',
