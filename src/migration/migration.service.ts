@@ -99,7 +99,6 @@ export class MigrationService {
       },
     );
   }
-
   @Cron('*/15 * * * * *')
   async claim() {
     const transactions = await this.migrationModel.find({
@@ -111,6 +110,7 @@ export class MigrationService {
     const admin2 = process.env.ADMIN_2;
 
     for (let i = 0; i < transactions.length; i++) {
+      console.log('provider==>>', chainMap[transactions[i].destinationId].rpc);
       const web3 = new Web3(chainMap[transactions[i].destinationId].rpc);
       const contract = new web3.eth.Contract(
         BRIDGE_ABI,
@@ -152,6 +152,8 @@ export class MigrationService {
     chainId,
   ) => {
     console.log(admin, privateKey, _amount, _fee, chainId);
+    console.log(await web3.eth.getBalance(admin));
+    console.log(web3.eth.currentProvider);
     try {
       let count = await web3.eth.getTransactionCount(admin, 'pending');
       let rawTransaction = {
@@ -182,6 +184,9 @@ export class MigrationService {
       );
       await web3.eth
         .sendSignedTransaction(signed.rawTransaction)
+        .on('transactionHash', (hash) => {
+          console.log('hash', hash);
+        })
         .on('confirmation', async (confirmationNumber, receipt) => {
           await this.migrationModel.findOneAndUpdate(
             { txn: _transitId },
@@ -192,7 +197,7 @@ export class MigrationService {
           console.log('error ==>>', error);
         });
     } catch (Err) {
-      console.log(Err);
+      console.log('testing error==>', Err);
     }
   };
 }

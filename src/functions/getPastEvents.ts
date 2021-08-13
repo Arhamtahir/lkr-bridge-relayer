@@ -28,24 +28,21 @@ export const getPastEvents = async (bridge) => {
 
       if (bridge.ethBlock) {
         let contract = new web3.eth.Contract(BRIDGE_ABI, ERC_BRIDGE);
-        await contract.getPastEvents(
-          'Payback',
-          {
-            fromBlock: bridge.ethBlock,
-            toBlock: 'latest',
-          },
-          async (err, events) => {
-            if (events && events.length != 0) {
-              events.forEach((event) => {
-                event.sourceChain = ETH_NETWORK;
-              });
-              allEvents = allEvents.concat(events);
-              ethNewBlock = parseInt(events[0].blockNumber) + 1;
-            } else {
-              ethNewBlock = await web3.eth.getBlockNumber();
-            }
-          },
-        );
+
+        let events = await contract.getPastEvents('Payback', {
+          fromBlock: bridge.ethBlock,
+          toBlock: 'latest',
+        });
+
+        if (events && events.length != 0) {
+          events.forEach((event) => {
+            event.sourceChain = ETH_NETWORK;
+          });
+          allEvents = allEvents.concat(events);
+          ethNewBlock = parseInt(events[0].blockNumber) + 1;
+        } else {
+          ethNewBlock = await web3.eth.getBlockNumber();
+        }
       } else {
         ethNewBlock = await web3.eth.getBlockNumber();
       }
@@ -56,24 +53,20 @@ export const getPastEvents = async (bridge) => {
 
       if (bridge.bnbBlock) {
         let contract = new web3.eth.Contract(BRIDGE_ABI, BEP_BRIDGE);
-        await contract.getPastEvents(
-          'Payback',
-          {
-            fromBlock: bridge.bnbBlock,
-            toBlock: 'latest',
-          },
-          async (err, events) => {
-            if (events && events.length != 0) {
-              events.forEach((event) => {
-                event.sourceChain = BSC_NETWORK;
-              });
-              allEvents = allEvents.concat(events);
-              bnbNewBlock = parseInt(events[0].blockNumber) + 1;
-            } else {
-              bnbNewBlock = await web3.eth.getBlockNumber();
-            }
-          },
-        );
+        let events = await contract.getPastEvents('Payback', {
+          fromBlock: bridge.bnbBlock,
+          toBlock: 'latest',
+        });
+
+        if (events && events.length != 0) {
+          events.forEach((event) => {
+            event.sourceChain = BSC_NETWORK;
+          });
+          allEvents = allEvents.concat(events);
+          bnbNewBlock = parseInt(events[0].blockNumber) + 1;
+        } else {
+          bnbNewBlock = await web3.eth.getBlockNumber();
+        }
       } else {
         bnbNewBlock = await web3.eth.getBlockNumber();
       }
@@ -84,29 +77,27 @@ export const getPastEvents = async (bridge) => {
 
       if (bridge.matBlock) {
         let contract = new web3.eth.Contract(BRIDGE_ABI, MAT_BRIDGE);
-        await contract.getPastEvents(
-          'Payback',
-          {
-            fromBlock: bridge.matBlock,
-            toBlock: 'latest',
-          },
-          async (err, events) => {
-            if (events && events.length != 0) {
-              events.forEach((event) => {
-                event.sourceChain = MAT_NETWORK;
-              });
-              allEvents = allEvents.concat(events);
-              matNewBlock = parseInt(events[0].blockNumber) + 1;
-            } else {
-              matNewBlock = await web3.eth.getBlockNumber();
-            }
-          },
-        );
+
+        let events = await contract.getPastEvents('Payback', {
+          fromBlock: bridge.matBlock,
+          toBlock: 'latest',
+        });
+
+        if (events && events.length != 0) {
+          events.forEach((event) => {
+            event.sourceChain = MAT_NETWORK;
+          });
+          allEvents = allEvents.concat(events);
+          matNewBlock = parseInt(events[0].blockNumber) + 1;
+        } else {
+          matNewBlock = await web3.eth.getBlockNumber();
+        }
       } else {
         matNewBlock = await web3.eth.getBlockNumber();
       }
     }
   }
+
   return {
     events: allEvents,
     ethNewBlock: ethNewBlock,

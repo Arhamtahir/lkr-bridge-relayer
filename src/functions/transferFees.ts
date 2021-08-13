@@ -230,9 +230,8 @@ export const transferFees = async (chainId) => {
     finalTransactionFees = txFeesInLKR;
   }
 
-  console.log('daniyal meri jaan==>>', typeof chainMap[chainId].rpc);
   let web3 = new Web3(chainMap[chainId].rpc);
-  console.log('daniyal meri jaan==>>', web3);
+
   let contract = new web3.eth.Contract(databaseABI, databaseAddress[chainId]);
 
   let ownerFeePercentage = await contract.methods.getOwnerFee().call();
