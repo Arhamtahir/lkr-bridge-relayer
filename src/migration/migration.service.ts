@@ -59,7 +59,7 @@ export class MigrationService {
           token,
           chainMap[events[i].returnValues.destinationChainID].bridge,
           Number(Web3.utils.fromWei(amount.toString())),
-          account,
+          receiver,
         );
         let isClaim = false;
         let migrationId = events[i].returnValues.migrationId;
