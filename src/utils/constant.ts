@@ -180,7 +180,7 @@ export const BRIDGE_ABI = [
       {
         indexed: false,
         internalType: 'bytes32',
-        name: 'paybackId',
+        name: 'transitId',
         type: 'bytes32',
       },
       {
@@ -354,6 +354,19 @@ export const BRIDGE_ABI = [
   },
   {
     inputs: [],
+    name: 'polkaFeeCollected',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
     name: 'signWallet1',
     outputs: [
       {
@@ -429,7 +442,30 @@ export const BRIDGE_ABI = [
         type: 'uint256',
       },
     ],
-    name: 'withdrawTokens',
+    name: 'withdrawPlatformFee',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_token',
+        type: 'address',
+      },
+      {
+        internalType: 'address',
+        name: '_to',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: '_amount',
+        type: 'uint256',
+      },
+    ],
+    name: 'withdrawPolkaFee',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
@@ -453,7 +489,7 @@ export const BRIDGE_ABI = [
       },
       {
         internalType: 'bytes32',
-        name: '_paybackId',
+        name: '_transitId',
         type: 'bytes32',
       },
       {
