@@ -25,7 +25,7 @@ export class MigrationService {
   ) {}
   private readonly logger = new Logger('Migration');
 
-  @Cron('*/15 * * * * *')
+  @Cron('*/30 * * * * *')
   async getEventsCron() {
     const bridge = await this.bridgeModel.findById(BRIDGE_ID);
 
@@ -99,7 +99,7 @@ export class MigrationService {
       },
     );
   }
-  @Cron('*/15 * * * * *')
+  @Cron('*/30 * * * * *')
   async claim() {
     const transactions = await this.migrationModel.find({
       bridgeID: BRIDGE_ID,
