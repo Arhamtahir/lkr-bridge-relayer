@@ -188,10 +188,12 @@ export class MigrationService {
           console.log('hash', hash);
         })
         .on('confirmation', async (confirmationNumber, receipt) => {
-          await this.migrationModel.findOneAndUpdate(
-            { txn: _transitId },
-            { isClaim: true, migrationHash: receipt.transactionHash },
-          );
+          if (confirmationNumber == 3) {
+            await this.migrationModel.findOneAndUpdate(
+              { txn: _transitId },
+              { isClaim: true, migrationHash: receipt.transactionHash },
+            );
+          }
         })
         .on('error', (error) => {
           console.log('error ==>>', error);
