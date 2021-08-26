@@ -188,7 +188,7 @@ export class MigrationService {
           console.log('hash', hash);
         })
         .on('confirmation', async (confirmationNumber, receipt) => {
-          if (confirmationNumber == 3) {
+          if (confirmationNumber == 2) {
             await this.migrationModel.findOneAndUpdate(
               { txn: _transitId },
               { isClaim: true, migrationHash: receipt.transactionHash },
