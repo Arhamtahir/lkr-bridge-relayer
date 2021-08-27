@@ -117,7 +117,10 @@ export class MigrationService {
         chainMap[transactions[i].destinationId].bridge,
       );
 
-      let fees = await transferFees(transactions[i].destinationId);
+      let fees = await transferFees(
+        transactions[i].destinationId,
+        transactions[i].amount,
+      );
       this.ClaimHandle(
         web3,
         i % 2 == 0 ? admin1 : admin2,

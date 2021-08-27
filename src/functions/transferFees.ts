@@ -183,7 +183,7 @@ const databaseAddress = {
   80001: '0x3E5b9afe400706f5AD4BB4165720aB5b93E4827D',
 };
 
-export const transferFees = async (chainId) => {
+export const transferFees = async (chainId, amount) => {
   // const web3 = new Web3(provider);
 
   // const contract = new web3.eth.Contract(
@@ -237,8 +237,7 @@ export const transferFees = async (chainId) => {
   let ownerFeePercentage = await contract.methods.getOwnerFee().call();
 
   let ownerFee =
-    finalTransactionFees *
-    (Number(web3.utils.fromWei(ownerFeePercentage)) / 100);
+    Number(amount) * (Number(web3.utils.fromWei(ownerFeePercentage)) / 100);
 
   finalTransactionFees = finalTransactionFees + ownerFee;
 
