@@ -106,103 +106,66 @@ export class MigrationService {
       isClaim: false,
     });
 
-    const admin1 = process.env.ADMIN_1;
-    const admin2 = process.env.ADMIN_2;
-
     for (let i = 0; i < transactions.length; i++) {
-      console.log('provider==>>', chainMap[transactions[i].destinationId].rpc);
-      const web3 = new Web3(chainMap[transactions[i].destinationId].rpc);
-      const contract = new web3.eth.Contract(
-        BRIDGE_ABI,
-        chainMap[transactions[i].destinationId].bridge,
-      );
+      try {
+        const web3 = new Web3(chainMap[transactions[i].destinationId].rpc);
+        const contract = new web3.eth.Contract(
+          BRIDGE_ABI,
+          chainMap[transactions[i].destinationId].bridge,
+        );
 
-      let fees = await transferFees(
-        transactions[i].destinationId,
-        transactions[i].amount,
-      );
-      this.ClaimHandle(
-        web3,
-        i % 2 == 0 ? admin1 : admin2,
-        i % 2 == 0 ? process.env.PRIVATE_KEY1 : process.env.PRIVATE_KEY2,
-        contract,
-        transactions[i].v,
-        transactions[i].r,
-        transactions[i].s,
-        transactions[i].txn,
-        chainMap[transactions[i].destinationId].token,
-        transactions[i].receiver,
-        web3.utils.toWei(transactions[i].amount.toString()),
-        web3.utils.toWei(fees.toString()),
-        transactions[i].destinationId,
-      );
+        let fees = await transferFees(transactions[i].destinationId);
+
+        let admin = i % 2 == 0 ? process.env.ADMIN_1 : process.env.ADMIN_2;
+        let privateKey =
+          i % 2 == 0 ? process.env.PRIVATE_KEY1 : process.env.PRIVATE_KEY2;
+
+        let count = await web3.eth.getTransactionCount(admin, 'pending');
+        let rawTransaction = {
+          from: admin,
+          to: chainMap[transactions[i].destinationId].bridge,
+          data: contract.methods
+            .withdrawTransitToken(
+              transactions[i].v,
+              transactions[i].r,
+              transactions[i].s,
+              transactions[i].txn,
+              chainMap[transactions[i].destinationId].token,
+              transactions[i].receiver,
+              web3.utils.toWei(transactions[i].amount.toString()),
+              web3.utils.toWei(fees.toString()),
+            )
+            .encodeABI(),
+          gasPrice: await web3.utils.toHex(10 * 1000000000),
+          nonce: count,
+          gasLimit: web3.utils.toHex(8000000),
+          chainId: transactions[i].destinationId,
+        };
+        let pr_key = `${privateKey}`.toString();
+
+        let signed = await web3.eth.accounts.signTransaction(
+          rawTransaction,
+          pr_key,
+        );
+        await web3.eth
+          .sendSignedTransaction(signed.rawTransaction)
+          .on('transactionHash', (hash) => {
+            console.log('hash', hash);
+          })
+          .on('confirmation', async (confirmationNumber, receipt) => {
+            if (confirmationNumber == 3) {
+              await this.migrationModel.findOneAndUpdate(
+                { txn: transactions[i].txn },
+                { isClaim: true, migrationHash: receipt.transactionHash },
+              );
+            }
+          })
+          .on('error', (error) => {
+            console.log('claim transaction error==>>', error);
+          });
+      } catch (Err) {
+        console.log(' claim function error==>', Err);
+      }
     }
   }
-
-  ClaimHandle = async (
-    web3,
-    admin,
-    privateKey,
-    contract,
-    v,
-    r,
-    s,
-    _transitId,
-    _token,
-    beneficiary,
-    _amount,
-    _fee,
-    chainId,
-  ) => {
-    console.log(admin, privateKey, _amount, _fee, chainId);
-    console.log(await web3.eth.getBalance(admin));
-    console.log(web3.eth.currentProvider);
-    try {
-      let count = await web3.eth.getTransactionCount(admin, 'pending');
-      let rawTransaction = {
-        from: admin,
-        to: chainMap[chainId].bridge,
-        data: contract.methods
-          .withdrawTransitToken(
-            v,
-            r,
-            s,
-            _transitId,
-            _token,
-            beneficiary,
-            _amount,
-            _fee,
-          )
-          .encodeABI(),
-        gasPrice: await web3.utils.toHex(10 * 1000000000),
-        nonce: count,
-        gasLimit: web3.utils.toHex(8000000),
-        chainId: chainId,
-      };
-      let pr_key = `${privateKey}`.toString();
-
-      let signed = await web3.eth.accounts.signTransaction(
-        rawTransaction,
-        pr_key,
-      );
-      await web3.eth
-        .sendSignedTransaction(signed.rawTransaction)
-        .on('transactionHash', (hash) => {
-          console.log('hash', hash);
-        })
-        .on('confirmation', async (confirmationNumber, receipt) => {
-          if (confirmationNumber == 2) {
-            await this.migrationModel.findOneAndUpdate(
-              { txn: _transitId },
-              { isClaim: true, migrationHash: receipt.transactionHash },
-            );
-          }
-        })
-        .on('error', (error) => {
-          console.log('error ==>>', error);
-        });
-    } catch (Err) {
-      console.log('testing error==>', Err);
-    }
-  };
 }
