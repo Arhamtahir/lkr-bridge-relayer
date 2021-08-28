@@ -114,7 +114,10 @@ export class MigrationService {
           chainMap[transactions[i].destinationId].bridge,
         );
 
-        let fees = await transferFees(transactions[i].destinationId);
+        let fees = await transferFees(
+          transactions[i].destinationId,
+          transactions[i].amount,
+        );
 
         let admin = i % 2 == 0 ? process.env.ADMIN_1 : process.env.ADMIN_2;
         let privateKey =
