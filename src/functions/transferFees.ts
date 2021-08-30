@@ -239,7 +239,7 @@ export const transferFees = async (chainId, amount) => {
   let ownerFee =
     Number(amount) * (Number(web3.utils.fromWei(ownerFeePercentage)) / 100);
 
-  finalTransactionFees = finalTransactionFees + ownerFee;
+  finalTransactionFees = finalTransactionFees;
 
   return finalTransactionFees;
 };
