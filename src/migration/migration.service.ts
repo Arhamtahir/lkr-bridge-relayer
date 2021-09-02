@@ -99,19 +99,55 @@ export class MigrationService {
       },
     );
   }
-  @Cron('*/30 * * * * *')
+  @Cron('*/20 * * * * *')
   async claim() {
     const transactions = await this.migrationModel.find({
       bridgeID: BRIDGE_ID,
       isClaim: false,
     });
 
+    let claimChainMap = { ...chainMap };
+
+    for (const chainId of Object.keys(chainMap)) {
+      const web3 = new Web3(chainMap[chainId].rpc);
+
+      let ADMIN_1_FUNDS = await web3.eth.getBalance(process.env.ADMIN_1);
+
+      ADMIN_1_FUNDS = Number(web3.utils.fromWei(ADMIN_1_FUNDS.toString()));
+
+      let ADMIN_2_FUNDS = await web3.eth.getBalance(process.env.ADMIN_2);
+
+      ADMIN_2_FUNDS = Number(web3.utils.fromWei(ADMIN_2_FUNDS.toString()));
+
+      claimChainMap[chainId]['ADMIN_1'] =
+        ADMIN_1_FUNDS > 0.05 ? process.env.ADMIN_1 : process.env.ADMIN_2;
+      claimChainMap[chainId]['PRIVATE_KEY1'] =
+        ADMIN_1_FUNDS > 0.05
+          ? process.env.PRIVATE_KEY1
+          : process.env.PRIVATE_KEY2;
+
+      claimChainMap[chainId]['ADMIN_2'] =
+        ADMIN_2_FUNDS > 0.05 ? process.env.ADMIN_2 : process.env.ADMIN_1;
+      claimChainMap[chainId]['PRIVATE_KEY2'] =
+        ADMIN_2_FUNDS > 0.05
+          ? process.env.PRIVATE_KEY2
+          : process.env.PRIVATE_KEY1;
+
+      claimChainMap[chainId]['skip'] =
+        ADMIN_1_FUNDS < 0.05 && ADMIN_2_FUNDS < 0.05 ? true : false;
+    }
+
     for (let i = 0; i < transactions.length; i++) {
+      console.log(claimChainMap);
+      if (claimChainMap[transactions[i].destinationId].skip) {
+        console.log('skipping');
+        continue;
+      }
       try {
-        const web3 = new Web3(chainMap[transactions[i].destinationId].rpc);
+        const web3 = new Web3(claimChainMap[transactions[i].destinationId].rpc);
         const contract = new web3.eth.Contract(
           BRIDGE_ABI,
-          chainMap[transactions[i].destinationId].bridge,
+          claimChainMap[transactions[i].destinationId].bridge,
         );
 
         let fees = await transferFees(
@@ -119,21 +155,24 @@ export class MigrationService {
           transactions[i].amount,
         );
 
-        let admin = i % 2 == 0 ? process.env.ADMIN_1 : process.env.ADMIN_2;
+        let admin =
+          i % 2 == 0 ? claimChainMap['ADMIN_1'] : claimChainMap['ADMIN_2'];
         let privateKey =
-          i % 2 == 0 ? process.env.PRIVATE_KEY1 : process.env.PRIVATE_KEY2;
+          i % 2 == 0
+            ? claimChainMap['PRIVATE_KEY1']
+            : claimChainMap['PRIVATE_KEY2'];
 
         let count = await web3.eth.getTransactionCount(admin, 'pending');
         let rawTransaction = {
           from: admin,
-          to: chainMap[transactions[i].destinationId].bridge,
+          to: claimChainMap[transactions[i].destinationId].bridge,
           data: contract.methods
             .withdrawTransitToken(
               transactions[i].v,
               transactions[i].r,
               transactions[i].s,
               transactions[i].txn,
-              chainMap[transactions[i].destinationId].token,
+              claimChainMap[transactions[i].destinationId].token,
               transactions[i].receiver,
               web3.utils.toWei(transactions[i].amount.toString()),
               web3.utils.toWei(fees.toString()),
