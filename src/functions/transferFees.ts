@@ -178,9 +178,9 @@ let databaseABI: any = [
   },
 ];
 const databaseAddress = {
-  4: '0x7cA42C7131884dd4929c46BF92d30254D0E75329',
-  97: '0x45F7D921326E096B086eb8D017cc1C646C8C7C28',
-  80001: '0x3E5b9afe400706f5AD4BB4165720aB5b93E4827D',
+  4: '0xA22eBEd76BFdE7c642c818f13159945305E20Eb3',
+  97: '0x422a8d3Ddbf9197a1659A116971D1C81F2c2208B',
+  80001: '0x49E9Ae2009Bb76532C71a16cd0F1d61B430C238a',
 };
 
 export const transferFees = async (chainId, amount) => {
@@ -239,7 +239,7 @@ export const transferFees = async (chainId, amount) => {
   let ownerFee =
     Number(amount) * (Number(web3.utils.fromWei(ownerFeePercentage)) / 100);
 
-  finalTransactionFees = finalTransactionFees + ownerFee;
+  finalTransactionFees = finalTransactionFees;
 
   return finalTransactionFees;
 };
