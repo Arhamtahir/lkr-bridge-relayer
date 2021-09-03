@@ -42,7 +42,6 @@ export class MigrationService {
       // store events in DB
       for (var i = 0; i < events.length; i++) {
         let amount = events[i].returnValues.amount;
-        console.log('amount ==>>', amount);
         let account = events[i].returnValues.sender;
         let receiver = events[i].returnValues.from;
         let chainId = events[i].sourceChain;
@@ -82,8 +81,6 @@ export class MigrationService {
           },
           { upsert: true, new: true, setDefaultsOnInsert: true },
         );
-
-        // console.log('res----------->', res);
       }
     }
 
@@ -99,7 +96,8 @@ export class MigrationService {
       },
     );
   }
-  @Cron('*/20 * * * * *')
+
+  @Cron('*/30 * * * * *')
   async claim() {
     const transactions = await this.migrationModel.find({
       bridgeID: BRIDGE_ID,
@@ -138,9 +136,7 @@ export class MigrationService {
     }
 
     for (let i = 0; i < transactions.length; i++) {
-      console.log(claimChainMap);
       if (claimChainMap[transactions[i].destinationId].skip) {
-        console.log('skipping');
         continue;
       }
       try {
@@ -156,11 +152,13 @@ export class MigrationService {
         );
 
         let admin =
-          i % 2 == 0 ? claimChainMap['ADMIN_1'] : claimChainMap['ADMIN_2'];
+          i % 2 == 0
+            ? claimChainMap[transactions[i].destinationId]['ADMIN_1']
+            : claimChainMap[transactions[i].destinationId]['ADMIN_2'];
         let privateKey =
           i % 2 == 0
-            ? claimChainMap['PRIVATE_KEY1']
-            : claimChainMap['PRIVATE_KEY2'];
+            ? claimChainMap[transactions[i].destinationId]['PRIVATE_KEY1']
+            : claimChainMap[transactions[i].destinationId]['PRIVATE_KEY2'];
 
         let count = await web3.eth.getTransactionCount(admin, 'pending');
         let rawTransaction = {
@@ -189,13 +187,13 @@ export class MigrationService {
           rawTransaction,
           pr_key,
         );
-        await web3.eth
+        web3.eth
           .sendSignedTransaction(signed.rawTransaction)
           .on('transactionHash', (hash) => {
             console.log('hash', hash);
           })
           .on('confirmation', async (confirmationNumber, receipt) => {
-            if (confirmationNumber == 3) {
+            if (confirmationNumber == 2) {
               await this.migrationModel.findOneAndUpdate(
                 { txn: transactions[i].txn },
                 { isClaim: true, migrationHash: receipt.transactionHash },
