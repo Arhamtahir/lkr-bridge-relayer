@@ -31,7 +31,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
+          aws-region: eu-wast-2
 
       - name: Login to Amazon ECR
         id: ecs-deployer
@@ -47,5 +47,5 @@ jobs:
           # Build a docker container and
           # push it to ECR
           docker build -t polkalokr-migration-relayer .
-          docker image tag polkalokr-migration-relayer 506390733940.dkr.ecr.us-east-1.amazonaws.com/polkalokr-migration-relayer:$IMAGE_TAG
-          docker push 506390733940.dkr.ecr.us-east-1.amazonaws.com/polkalokr-migration-relayer:$IMAGE_TAG
+          docker image tag polkalokr-migration-relayer 560073339755.dkr.ecr.eu-west-2.amazonaws.com/polkalokr-migration-relayer:$IMAGE_TAG
+          docker push 560073339755.dkr.ecr.eu-west-2.amazonaws.com/polkalokr-migration-relayer:$IMAGE_TAG
