@@ -11,8 +11,6 @@
 on:
   push:
     branches: [development]
-  pull_request:
-    branches: [development]
 
 name: Pushing Image To ECR
 
@@ -31,7 +29,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
+          aws-region: eu-west-2
 
       - name: Login to Amazon ECR
         id: ecs-deployer
@@ -41,11 +39,12 @@ jobs:
         id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: polkalokr-migration-relayer
+          ECR_REPOSITORY: polkalokr-migration-relayer-dev
+          
           IMAGE_TAG: ${{ github.sha }}
         run: |
           # Build a docker container and
           # push it to ECR
-          docker build -t polkalokr-migration-relayer .
-          docker image tag polkalokr-migration-relayer 506390733940.dkr.ecr.us-east-1.amazonaws.com/polkalokr-migration-relayer-dev:$IMAGE_TAG
-          docker push 506390733940.dkr.ecr.us-east-1.amazonaws.com/polkalokr-migration-relayer-dev:$IMAGE_TAG
+          docker build -t polkalokr-migration-relayer-dev .
+          docker image tag polkalokr-migration-relayer-dev 506390733940.dkr.ecr.eu-west-2.amazonaws.com/polkalokr-migration-relayer-dev:$IMAGE_TAG
+          docker push 506390733940.dkr.ecr.eu-west-2.amazonaws.com/polkalokr-migration-relayer-dev:$IMAGE_TAG
