@@ -178,9 +178,9 @@ let databaseABI: any = [
   },
 ];
 const databaseAddress = {
-  4: '0x6B60704D95bF1b579BB031d44bc207C05D8b7657',
-  97: '0x05B9D0000Eb9E3b7b3B9d88045736F57598F256d',
-  80001: '0xd0981882E18fbcaFC4c3dbf5afa79F4f1E3528cf',
+  4: '0x0bc711f48C6421A4F85B74FEEb6A64cbf8b002f1',
+  97: '0x84cD79F877D6cae7fCB0BDE2DbAb300424Cf7229',
+  80001: '0x4f91e0Ac3d1261EA84B8b2590343eA4673dc7C71',
 };
 
 export const transferFees = async (chainId, amount) => {
