@@ -104,10 +104,13 @@ export class MigrationService {
       isClaim: false,
     });
 
+    const randomNumber = Math.floor(Math.random() * 5) + 1;
     let claimChainMap = { ...chainMap };
 
     for (const chainId of Object.keys(chainMap)) {
-      const web3 = new Web3(chainMap[chainId].rpc);
+      const web3 = new Web3(
+        process.env[`${chainMap[chainId].rpc}${randomNumber}`],
+      );
 
       let ADMIN_1_FUNDS = await web3.eth.getBalance(process.env.ADMIN_1);
 
@@ -140,7 +143,11 @@ export class MigrationService {
         continue;
       }
       try {
-        const web3 = new Web3(claimChainMap[transactions[i].destinationId].rpc);
+        const web3 = new Web3(
+          process.env[
+            `${claimChainMap[transactions[i].destinationId].rpc}${randomNumber}`
+          ],
+        );
         const contract = new web3.eth.Contract(
           BRIDGE_ABI,
           claimChainMap[transactions[i].destinationId].bridge,

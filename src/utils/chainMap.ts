@@ -5,9 +5,6 @@ import {
   TOKEN_ERC,
   TOKEN_BEP,
   TOKEN_MAT,
-  ETH_URL,
-  BSC_URL,
-  MAT_URL,
 } from '../utils/constant';
 
 export const chainMap = {
@@ -16,20 +13,20 @@ export const chainMap = {
     name: 'ERC20',
     token: TOKEN_ERC,
     bridge: ERC_BRIDGE,
-    rpc: ETH_URL,
+    rpc: 'ETH_URL',
   },
   97: {
     chain: 'BEP_CHAIN_TEST',
     name: 'BEP20',
     token: TOKEN_BEP,
     bridge: BEP_BRIDGE,
-    rpc: BSC_URL,
+    rpc: 'BSC_URL',
   },
   80001: {
     chain: 'MAT_CHAIN_TEST',
     name: 'MAT',
     token: TOKEN_MAT,
     bridge: MAT_BRIDGE,
-    rpc: MAT_URL,
+    rpc: 'MAT_URL',
   },
 };

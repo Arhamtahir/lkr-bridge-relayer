@@ -1,9 +1,6 @@
 const Web3 = require('web3');
 
 import {
-  ETH_URL,
-  BSC_URL,
-  MAT_URL,
   ERC_BRIDGE,
   BEP_BRIDGE,
   MAT_BRIDGE,
@@ -23,8 +20,10 @@ export const getPastEvents = async (bridge) => {
   let matNewBlock;
 
   if (bridge) {
+    const randomNumber = Math.floor(Math.random() * 5) + 1;
+
     if (ERC_BRIDGE && TOKEN_ERC) {
-      let web3 = new Web3(ETH_URL);
+      let web3 = new Web3(process.env[`ETH_URL${randomNumber}`]);
 
       if (bridge.ethBlock) {
         let contract = new web3.eth.Contract(BRIDGE_ABI, ERC_BRIDGE);
@@ -49,7 +48,7 @@ export const getPastEvents = async (bridge) => {
     }
 
     if (BEP_BRIDGE && TOKEN_BEP) {
-      let web3 = new Web3(BSC_URL);
+      let web3 = new Web3(process.env[`BSC_URL${randomNumber}`]);
 
       if (bridge.bnbBlock) {
         let contract = new web3.eth.Contract(BRIDGE_ABI, BEP_BRIDGE);
@@ -73,7 +72,7 @@ export const getPastEvents = async (bridge) => {
     }
 
     if (MAT_BRIDGE && TOKEN_MAT) {
-      let web3 = new Web3(MAT_URL);
+      let web3 = new Web3(process.env[`MAT_URL${randomNumber}`]);
 
       if (bridge.matBlock) {
         let contract = new web3.eth.Contract(BRIDGE_ABI, MAT_BRIDGE);

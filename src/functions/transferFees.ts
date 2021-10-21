@@ -230,7 +230,8 @@ export const transferFees = async (chainId, amount) => {
     finalTransactionFees = txFeesInLKR;
   }
 
-  let web3 = new Web3(chainMap[chainId].rpc);
+  const randomNumber = Math.floor(Math.random() * 5) + 1;
+  let web3 = new Web3(process.env[`${chainMap[chainId].rpc}${randomNumber}`]);
 
   let contract = new web3.eth.Contract(databaseABI, databaseAddress[chainId]);
 

@@ -6,10 +6,6 @@ export const ETH_NETWORK = 4; //Test
 export const BSC_NETWORK = 97; //Test
 export const MAT_NETWORK = 80001; //Test
 
-export const ETH_URL = process.env.ETH_URL; //Test
-export const BSC_URL = process.env.BSC_URL; //Test
-export const MAT_URL = process.env.MAT_URL; //Test
-
 //Token Addresses
 export const TOKEN_ERC = process.env.TOKEN_ERC; //Test
 export const TOKEN_BEP = process.env.TOKEN_BEP; //Test
