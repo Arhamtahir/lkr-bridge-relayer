@@ -13,6 +13,15 @@ export const BridgeSchema = new mongoose.Schema({
   matBlock: {
     type: Number,
   },
+  ethBlockClaim: {
+    type: Number,
+  },
+  bnbBlockClaim: {
+    type: Number,
+  },
+  matBlockClaim: {
+    type: Number,
+  },
 });
 
 export interface Bridge extends mongoose.Document {
@@ -20,4 +29,7 @@ export interface Bridge extends mongoose.Document {
   ethBlock: number;
   bnbBlock: number;
   matBlock: number;
+  ethBlockClaim: number;
+  bnbBlockClaim: number;
+  matBlockClaim: number;
 }

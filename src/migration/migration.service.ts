@@ -9,6 +9,7 @@ import { Bridge } from 'src/bridge/bridge.model';
 import { chainMap } from '../utils/chainMap.js';
 
 import { getVRS } from '../functions/getVRS';
+import { getWithDrawEvents } from '../functions/getWithDrawEvents';
 import { getPastEvents } from '../functions/getPastEvents';
 import { transferFees } from '../functions/transferFees';
 
@@ -61,6 +62,7 @@ export class MigrationService {
           receiver,
         );
         let isClaim = false;
+        let isProcessed = false;
         let migrationId = events[i].returnValues.migrationId;
 
         const res = await this.migrationModel.findOneAndUpdate(
@@ -77,6 +79,7 @@ export class MigrationService {
             s: s,
             txn: Id,
             isClaim,
+            isProcessed,
             migrationId,
           },
           { upsert: true, new: true, setDefaultsOnInsert: true },
@@ -98,10 +101,10 @@ export class MigrationService {
   }
 
   @Cron('*/30 * * * * *')
-  async claim() {
+  async withDrawToken() {
     const transactions = await this.migrationModel.find({
       bridgeID: BRIDGE_ID,
-      isClaim: false,
+      isProcessed: false,
     });
 
     const randomNumber = Math.floor(Math.random() * 5) + 1;
@@ -194,25 +197,61 @@ export class MigrationService {
           rawTransaction,
           pr_key,
         );
-        web3.eth
-          .sendSignedTransaction(signed.rawTransaction)
-          .on('transactionHash', (hash) => {
-            console.log('hash', hash);
-          })
-          .on('confirmation', async (confirmationNumber, receipt) => {
-            if (confirmationNumber == 2) {
+        try {
+          web3.eth
+            .sendSignedTransaction(signed.rawTransaction)
+            .on('transactionHash', async (hash) => {
               await this.migrationModel.findOneAndUpdate(
                 { txn: transactions[i].txn },
-                { isClaim: true, migrationHash: receipt.transactionHash },
+                { isProcessed: true, migrationHash: hash },
               );
-            }
-          })
-          .on('error', (error) => {
-            console.log('claim transaction error==>>', error);
-          });
+            });
+        } catch (err) {
+          await this.migrationModel.findByIdAndUpdate(
+            { txn: transactions[i].txn },
+            { isProcessed: true },
+          );
+        }
       } catch (Err) {
-        console.log(' claim function error==>', Err);
+        console.log(' withDraw function error==>', Err);
       }
+    }
+  }
+
+  @Cron('*/30 * * * * *')
+  async claim() {
+    try {
+      const bridge = await this.bridgeModel.findById(BRIDGE_ID);
+      const {
+        events,
+        ethNewBlockClaim,
+        bnbNewBlockClaim,
+        matNewBlockClaim,
+      } = await getWithDrawEvents(bridge);
+
+      if (events && events.length) {
+        for (let l = 0; l < events.length; l++) {
+          await this.migrationModel.findOneAndUpdate(
+            {
+              txn: events[l].returnValues.transitId,
+            },
+            { isClaim: true, migrationHash: events[l].transactionHash },
+          );
+        }
+      }
+      // blocks update
+      await this.bridgeModel.updateMany(
+        { _id: BRIDGE_ID },
+        {
+          $set: {
+            ethBlockClaim: ethNewBlockClaim,
+            bnbBlockClaim: bnbNewBlockClaim,
+            matBlockClaim: matNewBlockClaim,
+          },
+        },
+      );
+    } catch (err) {
+      console.log(' claim function error==>', err);
     }
   }
 }

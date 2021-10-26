@@ -31,6 +31,9 @@ export const MigrationSchema = new mongoose.Schema({
   isClaim: {
     type: Boolean,
   },
+  isProcessed: {
+    type: Boolean,
+  },
   txn: {
     type: String,
   },
@@ -53,6 +56,7 @@ export interface Migration extends mongoose.Document {
   r: string;
   s: string;
   isClaim: boolean;
+  isProcessed: boolean;
   txn: string;
   migrationId: string;
   migrationHash: string;
