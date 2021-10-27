@@ -28,6 +28,7 @@ export class MigrationService {
 
   @Cron('*/30 * * * * *')
   async getEventsCron() {
+    console.log('START getEthEventsCron');
     const bridge = await this.bridgeModel.findById(BRIDGE_ID);
 
     const {
@@ -102,6 +103,7 @@ export class MigrationService {
 
   @Cron('*/30 * * * * *')
   async withDrawToken() {
+    console.log('START WithDrawToken Cron');
     const transactions = await this.migrationModel.find({
       bridgeID: BRIDGE_ID,
       isProcessed: false,
@@ -198,6 +200,7 @@ export class MigrationService {
           pr_key,
         );
         try {
+          console.log('SendSignedTransaction');
           web3.eth
             .sendSignedTransaction(signed.rawTransaction)
             .on('transactionHash', async (hash) => {
@@ -205,12 +208,14 @@ export class MigrationService {
                 { txn: transactions[i].txn },
                 { isProcessed: true, migrationHash: hash },
               );
+              console.log('IS PROCESSED TRUE With Migration HASH');
             });
         } catch (err) {
           await this.migrationModel.findByIdAndUpdate(
             { txn: transactions[i].txn },
             { isProcessed: true },
           );
+          console.log('IS PROCESSED TRUE without Migration HASH');
         }
       } catch (Err) {
         console.log(' withDraw function error==>', Err);
@@ -220,6 +225,7 @@ export class MigrationService {
 
   @Cron('*/30 * * * * *')
   async claim() {
+    console.log('START Claim Cron');
     try {
       const bridge = await this.bridgeModel.findById(BRIDGE_ID);
       const {
@@ -228,6 +234,12 @@ export class MigrationService {
         bnbNewBlockClaim,
         matNewBlockClaim,
       } = await getWithDrawEvents(bridge);
+
+      console.table({
+        ethNewBlockClaim: ethNewBlockClaim,
+        bnbNewBlockClaim: bnbNewBlockClaim,
+        matNewBlockClaim: matNewBlockClaim,
+      });
 
       if (events && events.length) {
         for (let l = 0; l < events.length; l++) {
